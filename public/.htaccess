@@ -12,11 +12,11 @@ ErrorDocument 404 /404.html
   RewriteEngine On
   RewriteBase /
 
-  # forzar https y www (descomenta si el dominio ya tiene certificado)
-  # RewriteCond %{HTTPS} !=on
-  # RewriteRule ^(.*)$ https://www.excelsius.biz/$1 [R=301,L]
-  # RewriteCond %{HTTP_HOST} !^www\. [NC]
-  # RewriteRule ^(.*)$ https://www.%{HTTP_HOST}/$1 [R=301,L]
+  # Una sola URL canónica: https y con www (la misma del sitemap, las canónicas
+  # y Open Graph). Si el SSL aún no está activo, comenta estas tres líneas.
+  RewriteCond %{HTTPS} !=on [OR]
+  RewriteCond %{HTTP_HOST} !^www\. [NC]
+  RewriteRule ^(.*)$ https://www.excelsius.biz/$1 [R=301,L]
 
   # /cursos  ->  /cursos/   (el sitio se genera con barra final)
   RewriteCond %{REQUEST_FILENAME} !-f
@@ -67,6 +67,10 @@ ErrorDocument 404 /404.html
   <FilesMatch "\.html$">
     Header set Cache-Control "public, max-age=0, must-revalidate"
   </FilesMatch>
+  # las respuestas del formulario nunca se guardan en caché
+  <FilesMatch "\.php$">
+    Header set Cache-Control "no-store"
+  </FilesMatch>
 
   # cabeceras de seguridad básicas
   Header always set X-Content-Type-Options "nosniff"
@@ -85,6 +89,18 @@ ErrorDocument 404 /404.html
   AddType image/svg+xml           .svg
   AddType application/manifest+json .webmanifest
 </IfModule>
+
+# ---------- Formulario (PHP) ----------
+# config.php solo lo incluyen los otros scripts: nadie debe abrirlo directo.
+<Files "config.php">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</Files>
 
 # ---------- Índices de directorio apagados ----------
 Options -Indexes

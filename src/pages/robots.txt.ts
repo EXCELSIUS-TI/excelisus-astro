@@ -16,6 +16,8 @@ export const GET: APIRoute = () => {
     'User-agent: *',
     'Allow: /',
     ...privadas.map((p) => `Disallow: ${p.ruta}`),
+    '# Scripts del formulario de contacto.',
+    'Disallow: /api/',
     '',
     '# Rastreadores de asistentes y buscadores generativos.',
     ...RASTREADORES_IA.flatMap((agente) => [`User-agent: ${agente}`, 'Allow: /', '']),

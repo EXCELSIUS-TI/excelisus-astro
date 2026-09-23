@@ -392,26 +392,25 @@ Dos detalles de la integración: el tema no se detecta con la convención del pa
 
 ## Formularios
 
-El sitio es estático y no necesita backend: el formulario arma el mensaje y lo abre en
-**WhatsApp** (`wa.me/51951753920`) o en el **cliente de correo** (`informes@excelsius.biz`).
-Si más adelante quieres recibirlos por correo desde el servidor, se puede añadir un
-`contacto.php` en cPanel y apuntar el `action` del formulario ahí.
+El formulario (`components/ui/Formulario.astro`) envía a **`public/api/contacto.php`**, que lo
+manda por correo a **informes@excelsius.biz** con `mail()` del propio cPanel. El asunto indica
+desde qué página llegó (`[EXCELSIUS · excelsius.biz] Curso: … — Nombre`). **WhatsApp**
+(`wa.me/51951753920`) sigue como segunda vía, con el mensaje ya redactado.
+
+La configuración (correo, clave de prueba, plantilla del correo) está en `public/api/config.php`.
 
 ## Subida a cPanel
 
-1. `pnpm build` en tu equipo (o en cualquier máquina con Node 20.11+).
-2. Comprime **el contenido** de `dist/` (no la carpeta: los archivos que están dentro).
-3. En cPanel → **Administrador de archivos** → `public_html/`.
-4. Sube el ZIP, usa **Extraer** y borra el ZIP.
-5. Verifica que `.htaccess` haya quedado en `public_html/` (activa "Mostrar archivos ocultos"
-   en la configuración del administrador de archivos).
+Todo el procedimiento —respaldo del WordPress actual, subida, correo y pruebas— está en
+**[`DEPLOY_CPANEL.md`](DEPLOY_CPANEL.md)**. En resumen: cambia `TEST_KEY` en
+`public/api/config.php`, `pnpm build`, sube **el contenido** de `dist/` a `public_html/`
+(después de sacar de ahí el WordPress) y prueba con `/api/testmail.php?key=…`.
 
-El `.htaccess` ya trae: página 404, barra final en las URL, compresión, caché con hash
-inmutable, cabeceras de seguridad y las redirecciones de las URL viejas de WordPress. Las
-líneas para forzar `https` y `www` están comentadas: descoméntalas cuando el certificado SSL
-esté activo en el dominio.
+El `.htaccess` ya trae: https + www, página 404, barra final en las URL, compresión, caché con
+hash inmutable, cabeceras de seguridad, bloqueo de `api/config.php` y las redirecciones de las
+URL viejas de WordPress.
 
-> El sitio no necesita PHP, base de datos ni Node en el servidor: son archivos estáticos.
+> El servidor solo necesita PHP para el formulario: no hay base de datos ni Node.
 
 ## Pendientes conocidos
 

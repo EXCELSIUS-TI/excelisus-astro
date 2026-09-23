@@ -4,15 +4,28 @@ import Orbe from '@/components/ui/Orbe.astro';
 import { cursos } from '@/data/cursos';
 
 /**
- * El sitio se publica estático en cPanel, sin backend: el formulario compone
- * el mensaje y lo abre en WhatsApp Web o en el cliente de correo. Así no hay
- * endpoint que mantener ni correos que se pierdan en un PHP sin registro.
+ * El envío principal va a `public/api/contacto.php`, que lo manda por correo a
+ * informes@excelsius.biz desde el propio cPanel. WhatsApp queda como segunda
+ * vía: arma el mismo mensaje y lo abre en wa.me.
  */
 type Props = { asunto?: string };
 const { asunto = '' } = Astro.props;
 ---
 
-<form class="form" data-formulario data-asunto={asunto}>
+<form
+  class="form"
+  data-formulario
+  data-asunto={asunto}
+  action="/api/contacto.php"
+  method="post"
+  novalidate>
+  <input type="hidden" name="origen" value={asunto || 'Consulta desde la web'} />
+  <input type="hidden" name="pagina" value={Astro.url.pathname} />
+  <!-- campo trampa: los humanos no lo ven; si llega lleno, es un bot -->
+  <div class="form__trampa" aria-hidden="true">
+    <label>No llenar <input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+  </div>
+
   <div class="form__fila">
     <label class="campo">
       <span class="hud hud--mute">Nombre y apellido *</span>
@@ -54,16 +67,26 @@ const { asunto = '' } = Astro.props;
     <textarea name="mensaje" rows="5" required placeholder="Describe el proyecto, el proceso a resolver o la consulta."></textarea>
   </label>
 
+  <label class="form__consentimiento">
+    <input type="checkbox" name="consentimiento" value="1" required />
+    <span>
+      Acepto la <a href="/politicas-privacidad/">política de privacidad</a> y el tratamiento de mis
+      datos para responder a esta consulta. *
+    </span>
+  </label>
+
   <div class="form__pie">
     <button type="submit" class="cta cta--azul" data-envio>
-      <span class="form__orbe" hidden><Orbe estado="connecting" tamano={20} etiqueta="Abriendo WhatsApp" /></span>
-      <i></i><span data-etiqueta>Enviar por WhatsApp</span>
+      <span class="form__orbe" hidden><Orbe estado="composing" tamano={20} etiqueta="Enviando" /></span>
+      <i></i><span data-etiqueta>Enviar mensaje</span>
     </button>
-    <button type="button" class="cta cta--linea" data-correo data-envio>
-      <span class="form__orbe" hidden><Orbe estado="connecting" tamano={20} etiqueta="Abriendo el correo" /></span>
-      <span data-etiqueta>Enviar por correo</span>
+    <button type="button" class="cta cta--linea" data-whatsapp data-envio>
+      <span class="form__orbe" hidden><Orbe estado="connecting" tamano={20} etiqueta="Abriendo WhatsApp" /></span>
+      <span data-etiqueta>Enviar por WhatsApp</span>
     </button>
   </div>
+
+  <p class="form__estado" data-estado role="status" aria-live="polite" hidden></p>
 
   <p class="form__nota">
     Respondemos en horario de oficina: {contacto.horario}. También puedes escribir directo a
@@ -72,9 +95,21 @@ const { asunto = '' } = Astro.props;
 </form>
 
 <script>
+  import { enviarFormulario } from '@/scripts/enviarFormulario';
+
   const NUMERO = '51951753920';
+  const CORREO = 'informes@excelsius.biz';
 
   document.querySelectorAll<HTMLFormElement>('[data-formulario]').forEach((form) => {
+    const estado = form.querySelector<HTMLElement>('[data-estado]');
+
+    const avisar = (texto: string, tipo: 'ok' | 'error') => {
+      if (!estado) return;
+      estado.textContent = texto;
+      estado.dataset.tipo = tipo;
+      estado.hidden = false;
+    };
+
     const componer = () => {
       const d = new FormData(form);
       const asunto = form.dataset.asunto || 'Consulta desde la web';
@@ -89,11 +124,11 @@ const { asunto = '' } = Astro.props;
         '',
         String(d.get('mensaje') ?? ''),
       ].filter(Boolean);
-      return { asunto, texto: lineas.join('\n') };
+      return lineas.join('\n');
     };
 
-    /* Abrir WhatsApp o el cliente de correo tarda un momento y el navegador
-       no avisa de nada: mientras tanto el botón muestra el orbe. */
+    /* Mientras se envía (o se abre WhatsApp, que tarda sin avisar) el botón
+       muestra el orbe. Devuelve la función que lo deja como estaba. */
     const ocupado = (boton: HTMLElement, texto: string) => {
       const orbe = boton.querySelector<HTMLElement>('.form__orbe');
       const etiqueta = boton.querySelector<HTMLElement>('[data-etiqueta]');
@@ -104,31 +139,49 @@ const { asunto = '' } = Astro.props;
       if (guion) guion.hidden = true;
       if (etiqueta) etiqueta.textContent = texto;
       boton.setAttribute('aria-busy', 'true');
+      boton.toggleAttribute('disabled', boton.matches('[type="submit"]'));
 
-      window.setTimeout(() => {
+      return () => {
         if (orbe) orbe.hidden = true;
         if (guion) guion.hidden = false;
         if (etiqueta) etiqueta.textContent = original;
         boton.removeAttribute('aria-busy');
-      }, 2200);
+        boton.removeAttribute('disabled');
+      };
     };
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!form.reportValidity()) return;
       const boton = form.querySelector<HTMLElement>('button[type="submit"]');
-      if (boton) ocupado(boton, 'Abriendo WhatsApp');
-      const { texto } = componer();
-      window.open(`https://wa.me/${NUMERO}?text=${encodeURIComponent(texto)}`, '_blank', 'noopener');
+      const listo = boton ? ocupado(boton, 'Enviando…') : () => {};
+      if (estado) estado.hidden = true;
+
+      try {
+        const res = await enviarFormulario(form.action, new FormData(form));
+        const datos = await res.json().catch(() => null);
+        if (res.ok && datos?.ok) {
+          form.reset();
+          avisar(datos.message || 'Mensaje enviado. Te responderemos pronto.', 'ok');
+        } else {
+          avisar(
+            datos?.error ||
+              `No pudimos enviar el mensaje. Escríbenos a ${CORREO} o usa el botón de WhatsApp.`,
+            'error',
+          );
+        }
+      } catch {
+        avisar(`Sin conexión con el servidor. Escríbenos a ${CORREO} o usa el botón de WhatsApp.`, 'error');
+      } finally {
+        listo();
+      }
     });
 
-    form.querySelector<HTMLElement>('[data-correo]')?.addEventListener('click', (e) => {
+    form.querySelector<HTMLElement>('[data-whatsapp]')?.addEventListener('click', (e) => {
       if (!form.reportValidity()) return;
-      ocupado(e.currentTarget as HTMLElement, 'Abriendo el correo');
-      const { asunto, texto } = componer();
-      window.location.href = `mailto:informes@excelsius.biz?subject=${encodeURIComponent(
-        `Web · ${asunto}`,
-      )}&body=${encodeURIComponent(texto)}`;
+      const listo = ocupado(e.currentTarget as HTMLElement, 'Abriendo WhatsApp');
+      window.setTimeout(listo, 2200);
+      window.open(`https://wa.me/${NUMERO}?text=${encodeURIComponent(componer())}`, '_blank', 'noopener');
     });
   });
 </script>
@@ -179,4 +232,45 @@ const { asunto = '' } = Astro.props;
   }
   .form__nota { font-size: 12.5px; line-height: 1.6; color: var(--mute); }
   .form__nota a { color: var(--acento); }
+
+  /* fuera de pantalla y no display:none: algunos bots se saltan los campos ocultos */
+  .form__trampa {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .form__consentimiento {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--mute);
+    cursor: pointer;
+  }
+  .form__consentimiento input {
+    flex: none;
+    width: 16px;
+    height: 16px;
+    margin-top: 2px;
+    accent-color: var(--acento);
+  }
+  .form__consentimiento a { color: var(--acento); }
+
+  .form__estado {
+    padding: 12px 14px;
+    font-size: 14px;
+    line-height: 1.5;
+    border-left: 3px solid var(--acento);
+    background: color-mix(in srgb, var(--acento) 10%, transparent);
+    color: var(--texto);
+  }
+  .form__estado[data-tipo='error'] {
+    border-left-color: #e5484d;
+    background: color-mix(in srgb, #e5484d 12%, transparent);
+  }
+  .form__estado[hidden] { display: none; }
 </style>
