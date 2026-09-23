@@ -1,0 +1,100 @@
+---
+/**
+ * Botones para compartir el artículo. Son enlaces normales a cada red —no
+ * cargan ningún script de terceros ni rastrean a nadie— más «copiar enlace» y
+ * el menú nativo del sistema cuando el navegador lo ofrece.
+ */
+type Props = { url: string; titulo: string };
+const { url, titulo } = Astro.props;
+
+const u = encodeURIComponent(url);
+const t = encodeURIComponent(titulo);
+
+const redes = [
+  {
+    nombre: 'WhatsApp',
+    href: `https://wa.me/?text=${encodeURIComponent(`${titulo} ${url}`)}`,
+    icono:
+      'M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-1.7-.1-.4-.1-.9-.3-1.5-.6-2.7-1.2-4.4-3.9-4.5-4.1-.1-.2-1.1-1.4-1.1-2.7s.7-1.9.9-2.2c.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.3.5-.4.4c-.1.1-.3.3-.1.6.2.3.7 1.2 1.6 1.9 1.1.9 1.9 1.2 2.2 1.4.3.1.5.1.6-.1l.8-1c.2-.2.4-.2.6-.1l2 1c.2.1.4.2.5.3.1.2.1.6-.1 1.1z',
+  },
+  {
+    nombre: 'LinkedIn',
+    href: `https://www.linkedin.com/sharing/share-offsite/?url=${u}`,
+    icono:
+      'M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.75h4V21H3V9.75zM9.5 9.75h3.83v1.54h.05c.53-1 1.84-2.06 3.79-2.06 4.05 0 4.8 2.67 4.8 6.13V21h-4v-5.02c0-1.2-.02-2.73-1.66-2.73-1.67 0-1.93 1.3-1.93 2.64V21h-4V9.75z',
+  },
+  {
+    nombre: 'X',
+    href: `https://twitter.com/intent/tweet?text=${t}&url=${u}`,
+    icono:
+      'M17.75 3h3.07l-6.7 7.66L22 21h-6.17l-4.83-6.32L5.47 21H2.4l7.17-8.2L2 3h6.33l4.37 5.78L17.75 3zm-1.08 16.2h1.7L7.4 4.73H5.57L16.67 19.2z',
+  },
+  {
+    nombre: 'Facebook',
+    href: `https://www.facebook.com/sharer/sharer.php?u=${u}`,
+    icono:
+      'M13.5 22v-8h2.7l.4-3.2h-3.1V8.8c0-.9.3-1.6 1.6-1.6h1.7V4.3c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.3H7.4V14h2.7v8h3.4z',
+  },
+];
+---
+
+<div class="compartir" data-compartir data-url={url} data-titulo={titulo}>
+  <span class="hud hud--mute">Compartir</span>
+  <ul class="compartir__lista">
+    {redes.map((r) => (
+      <li>
+        <a
+          href={r.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="compartir__boton"
+          aria-label={`Compartir en ${r.nombre}`}
+          title={r.nombre}>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d={r.icono}></path></svg>
+        </a>
+      </li>
+    ))}
+    <li>
+      <button type="button" class="compartir__boton" data-copiar aria-label="Copiar enlace" title="Copiar enlace">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M10.6 13.4a1 1 0 0 1 0-1.4l3.5-3.5a3 3 0 0 1 4.2 4.2l-2.1 2.1a1 1 0 1 1-1.4-1.4l2.1-2.1a1 1 0 0 0-1.4-1.4L12 13.4a1 1 0 0 1-1.4 0zm2.8-2.8a1 1 0 0 1 0 1.4L9.9 15.5a3 3 0 0 1-4.2-4.2l2.1-2.1a1 1 0 0 1 1.4 1.4l-2.1 2.1a1 1 0 0 0 1.4 1.4l3.5-3.5a1 1 0 0 1 1.4 0z"></path>
+        </svg>
+      </button>
+    </li>
+    <li data-nativo hidden>
+      <button type="button" class="compartir__boton" data-compartir-nativo aria-label="Más opciones para compartir" title="Más opciones">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M18 16a3 3 0 0 0-2.4 1.2l-6.7-3.4a3 3 0 0 0 0-1.6l6.7-3.4A3 3 0 1 0 15 7l-6.7 3.4a3 3 0 1 0 0 3.2L15 17a3 3 0 1 0 3-1z"></path>
+        </svg>
+      </button>
+    </li>
+  </ul>
+  <span class="compartir__aviso" role="status" aria-live="polite" data-aviso></span>
+</div>
+
+<style>
+  .compartir { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+  .compartir__lista { display: flex; flex-wrap: wrap; gap: 6px; }
+  .compartir__boton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--line);
+    color: var(--mute);
+    transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  }
+  .compartir__boton:hover {
+    color: var(--acento);
+    border-color: var(--line-fuerte);
+    background: var(--superficie-2);
+  }
+  .compartir__boton svg { width: 17px; height: 17px; fill: currentColor; }
+  .compartir__aviso {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--acento);
+  }
+</style>

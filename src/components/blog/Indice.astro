@@ -1,0 +1,52 @@
+---
+import type { MarkdownHeading } from 'astro';
+
+/**
+ * Índice del artículo, armado con los encabezados que Astro extrae del
+ * Markdown. Solo H2 y H3: más niveles convierten el índice en otro texto que
+ * leer. La sección visible se marca con `scripts/blog.ts`.
+ */
+type Props = { encabezados: MarkdownHeading[] };
+const { encabezados } = Astro.props;
+const entradas = encabezados.filter((e) => e.depth === 2 || e.depth === 3);
+---
+
+{entradas.length > 1 && (
+  <nav class="indice" aria-label="Contenido del artículo" data-indice>
+    <span class="hud indice__titulo">En este artículo</span>
+    <ol class="indice__lista">
+      {entradas.map((e) => (
+        <li class={`indice__item indice__item--h${e.depth}`}>
+          <a href={`#${e.slug}`} data-seccion={e.slug}>{e.text}</a>
+        </li>
+      ))}
+    </ol>
+  </nav>
+)}
+
+<style>
+  .indice {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 20px;
+    border: 1px solid var(--line);
+    background: var(--superficie);
+  }
+  .indice__lista { display: flex; flex-direction: column; }
+  .indice__item a {
+    display: block;
+    padding: 7px 0 7px 12px;
+    border-left: 2px solid var(--line);
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--mute);
+    transition: color 0.2s ease, border-color 0.2s ease, padding-left 0.25s ease;
+  }
+  .indice__item--h3 a { padding-left: 24px; font-size: 12.5px; }
+  .indice__item a:hover { color: var(--texto); border-left-color: var(--line-fuerte); }
+  .indice__item a[aria-current='true'] {
+    color: var(--acento);
+    border-left-color: var(--acento);
+  }
+</style>

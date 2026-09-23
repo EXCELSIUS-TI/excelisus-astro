@@ -1,0 +1,241 @@
+---
+import Base from '@/layouts/Base.astro';
+import Portada from '@/components/ui/Portada.astro';
+import { razones, stack, indicadores, contacto } from '@/data/site';
+import { categorias } from '@/data/cursos';
+import { logoStack } from '@/data/logos-stack';
+---
+
+<Base
+  titulo="Nosotros"
+  descripcion="EXCELSIUS es una empresa de ingenieros full stack que desarrolla software, implementa ERP y analítica de datos, y capacita equipos en seguridad, marketing y datos.">
+  <div class="nosotros" data-paleta="calida">
+  <Portada
+    hud="Nosotros"
+    titulo="Ingeniería"
+    acento="sin humo"
+    entradilla="Somos EXCELSIUS, una empresa con un equipo de ingenieros full stack que trabaja en proyectos de software para distintos sectores, apoyándose en inteligencia artificial y tecnologías actuales. Construimos sistemas que entran en producción y se quedan funcionando."
+    datos={[
+      { etiqueta: 'Sede', valor: 'Santiago de Surco, Lima' },
+      { etiqueta: 'Equipo', valor: 'Ingenieros full stack' },
+      { etiqueta: 'Frentes', valor: 'Software · Datos · Formación' },
+    ]}
+  />
+
+  <section class="seccion">
+    <div class="wrap manifiesto">
+      <div class="manifiesto__texto rv">
+        <span class="hud">Qué nos define</span>
+        <h2 class="titulo-seccion manifiesto__titulo">
+          <span class="mask"><span>El software se mide <em>en uso</em></span></span>
+        </h2>
+        <p class="entradilla">
+          Un sistema bien hecho no se reconoce por su documentación ni por su stack, sino porque el
+          equipo que lo recibe deja de hacer a mano lo que antes hacía a mano. Por eso cada proyecto
+          termina en capacitación y acompañamiento, no en una entrega de archivos.
+        </p>
+        <p class="entradilla">
+          Trabajamos en tres frentes que se refuerzan: construimos el software, ordenamos los datos
+          que ese software produce y formamos a las personas que los van a usar. Es la misma razón
+          por la que dictamos cursos: un tablero sin nadie que lo lea es un gasto, no una inversión.
+        </p>
+      </div>
+
+      <ul class="cifras rv">
+        {indicadores.map((i) => (
+          <li>
+            <b class="mono-num">{i.valor}</b>
+            <span class="hud hud--mute">{i.etiqueta}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="seccion razones-sec">
+    <div class="wrap">
+      <span class="hud">Por qué elegirnos</span>
+      <h2 class="titulo-seccion razones__titulo">
+        <span class="mask"><span>Cuatro compromisos <em>que sí se revisan</em></span></span>
+      </h2>
+
+      <ul class="razones">
+        {razones.map((r, n) => (
+          <li class="tarjeta razon rv" data-retraso={(n % 2) * 90}>
+            <span class="mono-num razon__num">0{n + 1}</span>
+            <h3 class="razon__titulo">{r.titulo}</h3>
+            <p class="razon__texto">{r.detalle}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="seccion">
+    <div class="wrap">
+      <span class="hud">Con qué trabajamos</span>
+      <h2 class="titulo-seccion stack__titulo">
+        <span class="mask"><span>Stack <em>y criterio</em></span></span>
+      </h2>
+
+      <ul class="stack">
+        {stack.map((g) => (
+          <li class="stack__grupo rv">
+            <span class="hud hud--mute">{g.grupo}</span>
+            <ul>
+              {g.items.map((i) => (
+                <li>
+                  {logoStack(i) && (
+                    <img src={logoStack(i)} alt="" width="28" height="28" loading="lazy" decoding="async" />
+                  )}
+                  <span>{i}</span>
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="seccion formacion">
+    <div class="wrap formacion__cuerpo">
+      <div class="rv">
+        <span class="hud">Escuela Excelsius</span>
+        <h2 class="titulo-seccion formacion__titulo">
+          <span class="mask"><span>También <em>formamos equipos</em></span></span>
+        </h2>
+        <p class="entradilla">
+          Tres líneas de especialización dictadas en vivo por profesionales en ejercicio, con
+          certificación por horas académicas. {contacto.horarioClases}.
+        </p>
+      </div>
+
+      <ul class="formacion__lineas rv">
+        {categorias.map((c) => (
+          <li>
+            <a href={`/cursos/#${c.id}`}>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d={c.icono}></path></svg>
+              <strong>{c.nombre}</strong>
+              <span>{c.descripcion}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+  </div>
+</Base>
+
+<style>
+  .manifiesto {
+    display: grid;
+    grid-template-columns: 1.3fr 0.7fr;
+    gap: clamp(32px, 5vw, 80px);
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    .manifiesto { grid-template-columns: 1fr; }
+  }
+  .manifiesto__titulo { margin-top: 18px; }
+
+  .cifras { display: flex; flex-direction: column; }
+  .cifras li {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-block: 22px;
+    border-top: 1px solid var(--line);
+  }
+  .cifras li:last-child { border-bottom: 1px solid var(--line); }
+  .cifras b {
+    font-size: clamp(28px, 3.4vw, 44px);
+    line-height: 1;
+    letter-spacing: -0.05em;
+    color: var(--acento);
+  }
+
+  .razones-sec { background: var(--superficie); }
+  .razones__titulo { margin-top: 18px; }
+  .razones {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-top: clamp(34px, 4vw, 56px);
+  }
+  @media (max-width: 760px) {
+    .razones { grid-template-columns: 1fr; }
+  }
+  .razon { gap: 12px; background: var(--fondo); }
+  .razon__num { font-size: 12px; letter-spacing: 0.2em; color: var(--acento); }
+  .razon__titulo { font-size: clamp(17px, 1.6vw, 21px); line-height: 1.3; }
+  .razon__texto { font-size: 13.8px; line-height: 1.7; color: var(--mute); }
+
+  .stack__titulo { margin-top: 18px; }
+  .stack {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    margin-top: clamp(34px, 4vw, 56px);
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+  @media (max-width: 860px) {
+    .stack { grid-template-columns: repeat(2, 1fr); }
+  }
+  .stack__grupo {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: clamp(22px, 2.4vw, 30px);
+    background: var(--fondo);
+  }
+  .stack__grupo ul { display: flex; flex-direction: column; gap: 10px; }
+  .stack__grupo ul li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    color: var(--mute);
+    transition: color 0.2s ease;
+  }
+  .stack__grupo ul li:hover { color: var(--texto); }
+  .stack__grupo img { width: 28px; height: 28px; flex: 0 0 auto; }
+  /* las marcas de color muy oscuro se levantan sobre fondo negro */
+  :root[data-tema='oscuro'] .stack__grupo img[src*='flutter'],
+  :root[data-tema='oscuro'] .stack__grupo img[src*='nextdotjs'],
+  :root[data-tema='oscuro'] .stack__grupo img[src*='php'] {
+    filter: brightness(1.8) saturate(1.1);
+  }
+  /* sin logotipo la etiqueta se alinea con las demás */
+  .stack__grupo ul li:not(:has(img)) { padding-left: 40px; }
+
+  /* los tres colores repartidos: morado en la estructura, naranja en los
+     acentos y amarillo en los rótulos de cada grupo del stack */
+  .stack__grupo > .hud { color: var(--celeste); }
+  :root[data-tema='claro'] .stack__grupo > .hud { color: #8a6d00; }
+
+  .formacion { background: var(--superficie); }
+  .formacion__cuerpo {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: clamp(32px, 5vw, 72px);
+    align-items: center;
+  }
+  @media (max-width: 900px) {
+    .formacion__cuerpo { grid-template-columns: 1fr; }
+  }
+  .formacion__titulo { margin-top: 18px; }
+
+  .formacion__lineas { display: flex; flex-direction: column; gap: 1px; background: var(--line); border: 1px solid var(--line); }
+  .formacion__lineas a {
+    display: block;
+    padding: clamp(20px, 2.2vw, 28px);
+    background: var(--fondo);
+    transition: background-color 0.25s ease;
+  }
+  .formacion__lineas a:hover { background: var(--superficie-2); }
+  .formacion__lineas svg { width: 20px; height: 20px; fill: var(--acento); margin-bottom: 12px; }
+  .formacion__lineas strong { display: block; font-size: 16px; }
+  .formacion__lineas span { display: block; margin-top: 6px; font-size: 13.5px; color: var(--mute); }
+</style>

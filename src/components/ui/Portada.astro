@@ -1,0 +1,103 @@
+---
+/** Cabecera de página interior: el mismo lenguaje del hero, en versión corta. */
+type Props = {
+  hud: string;
+  titulo: string;
+  acento?: string;
+  entradilla?: string;
+  datos?: { etiqueta: string; valor: string }[];
+};
+
+const { hud, titulo, acento, entradilla, datos = [] } = Astro.props;
+---
+
+<section class="portada zona-oscura">
+  <div class="portada__fondo" aria-hidden="true"></div>
+  <div class="portada__trama" aria-hidden="true"></div>
+
+  <div class="wrap portada__cuerpo">
+    <span class="hud portada__hud anim-fade" style="animation-delay:.2s">{hud}</span>
+
+    <h1 class="display portada__titulo">
+      <span class="mask"><span class="anim-rise">{titulo}</span></span>
+      {acento && (
+        <span class="mask">
+          <span class="anim-rise" style="animation-delay:.1s">
+            <span class="fill-word" data-word={acento}>{acento}</span>
+          </span>
+        </span>
+      )}
+    </h1>
+
+    {entradilla && <p class="portada__entradilla anim-fade" style="animation-delay:.8s">{entradilla}</p>}
+
+    {datos.length > 0 && (
+      <ul class="portada__datos anim-fade" style="animation-delay:1s">
+        {datos.map((d) => (
+          <li>
+            <span class="hud hud--mute">{d.etiqueta}</span>
+            <b>{d.valor}</b>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+</section>
+
+<style>
+  .portada {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: flex-end;
+    min-height: clamp(360px, 52vh, 560px);
+    padding-block: clamp(90px, 12vw, 140px) clamp(40px, 5vw, 70px);
+    overflow: hidden;
+  }
+
+  .portada__fondo {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(55% 60% at 78% 20%, color-mix(in srgb, var(--azul) 42%, transparent), transparent 70%),
+      radial-gradient(45% 50% at 10% 90%, color-mix(in srgb, var(--acento) 12%, transparent), transparent 70%),
+      var(--fondo);
+  }
+  .portada__trama {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.3;
+    background: repeating-linear-gradient(0deg, var(--trama) 0 1px, transparent 1px 3px);
+  }
+
+  .portada__cuerpo { position: relative; z-index: 2; }
+  .portada__hud { display: block; margin-bottom: 20px; }
+
+  .portada__titulo {
+    font-size: clamp(38px, 6.4vw, 92px);
+    line-height: 0.9;
+    max-width: 18ch;
+  }
+
+  .portada__entradilla {
+    max-width: 64ch;
+    margin-top: 26px;
+    font-size: clamp(14px, 1.2vw, 17px);
+    line-height: 1.62;
+    color: var(--mute);
+  }
+
+  .portada__datos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(18px, 3vw, 44px);
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+  }
+  .portada__datos li { display: flex; flex-direction: column; gap: 7px; }
+  .portada__datos b { font-size: 15px; font-weight: 400; }
+</style>

@@ -1,0 +1,162 @@
+---
+import '@/styles/global.css';
+import { site } from '@/data/site';
+import { seoDe, IMAGEN_POR_DEFECTO } from '@/seo/seo';
+import type { ImagenSocial } from '@/seo/seo';
+import { organizacion, sitioWeb } from '@/seo/esquemas';
+import Rail from '@/components/layout/Rail.astro';
+import Topbar from '@/components/layout/Topbar.astro';
+import MainMenu from '@/components/layout/MainMenu.astro';
+import Cromo from '@/components/layout/Cromo.astro';
+import SiteFooter from '@/components/layout/SiteFooter.astro';
+import VeloNavegacion from '@/components/layout/VeloNavegacion.astro';
+
+type Props = {
+  titulo?: string;
+  descripcion?: string;
+  /** imagen para compartir; por defecto, la de la marca */
+  imagen?: ImagenSocial;
+  /** si la página es un artículo, sus fechas, sección y etiquetas */
+  articulo?: {
+    publicado: string;
+    actualizado: string;
+    seccion: string;
+    etiquetas: readonly string[];
+  };
+};
+
+/* Cada página puede pasar lo suyo; si no, manda `src/seo/seo.ts`, que es la
+   misma fuente del sitemap y del robots.txt. */
+const ficha = seoDe(Astro.url.pathname.replace(/\/?$/, '/'));
+const {
+  titulo = ficha?.titulo,
+  descripcion = ficha?.descripcion ?? site.descripcion,
+  imagen = ficha?.imagen ?? IMAGEN_POR_DEFECTO,
+  articulo,
+} = Astro.props;
+const tituloCompleto = titulo ? `${titulo} · ${site.nombre}` : site.titulo;
+const canonica = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
+const social = new URL(imagen.src, Astro.site ?? site.url).href;
+---
+
+<!doctype html>
+<html lang="es-PE">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    {/* el tema se decide antes del primer pintado: sin parpadeo blanco */}
+    <script is:inline>
+      (function () {
+        var tema = 'oscuro';
+        try {
+          var guardado = localStorage.getItem('exc-tema');
+          if (guardado === 'claro' || guardado === 'oscuro') tema = guardado;
+          else if (window.matchMedia('(prefers-color-scheme: light)').matches) tema = 'claro';
+        } catch (e) {
+          /* sin almacenamiento: se queda en oscuro */
+        }
+        document.documentElement.dataset.tema = tema;
+
+        /* si venimos de otra página del sitio, el velo ya debe estar puesto
+           cuando el navegador pinte por primera vez */
+        try {
+          if (sessionStorage.getItem('exc-navegando') === '1') {
+            sessionStorage.removeItem('exc-navegando');
+            document.documentElement.dataset.navegando = 'true';
+          }
+        } catch (e) {
+          /* sin almacenamiento no hay transición de entrada */
+        }
+      })();
+    </script>
+    <title>{tituloCompleto}</title>
+    <meta name="description" content={descripcion} />
+    <link rel="canonical" href={canonica} />
+    <meta name="theme-color" content="#05070F" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="author" content="EXCELSIUS" />
+
+    {/* SEO: se permite el fragmento completo y la vista previa grande, que es
+        lo que citan los resúmenes de buscadores y asistentes */}
+    <meta
+      name="robots"
+      content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="geo.region" content="PE-LIM" />
+    <meta name="geo.placename" content="Lima, Perú" />
+    <meta name="language" content="es-PE" />
+
+    {/* índice para modelos de lenguaje (llmstxt.org) */}
+    <link rel="alternate" type="text/plain" href="/llms.txt" title="Índice para modelos de lenguaje" />
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+    <link rel="alternate" type="application/rss+xml" title={`Blog de ${site.nombre}`} href="/blog/rss.xml" />
+    {site.verificacionGoogle && <meta name="google-site-verification" content={site.verificacionGoogle} />}
+    <link rel="icon" type="image/png" sizes="80x80" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
+
+    <link
+      rel="preload"
+      href="/fonts/Arimo-Variable.ttf"
+      as="font"
+      type="font/ttf"
+      crossorigin />
+    <link
+      rel="preload"
+      href="/fonts/IBMPlexMono-Medium.ttf"
+      as="font"
+      type="font/ttf"
+      crossorigin />
+
+    <meta property="og:type" content={articulo ? 'article' : 'website'} />
+    {articulo && (
+      <>
+        <meta property="article:published_time" content={articulo.publicado} />
+        <meta property="article:modified_time" content={articulo.actualizado} />
+        <meta property="article:section" content={articulo.seccion} />
+        <meta property="article:publisher" content={site.url} />
+        {articulo.etiquetas.map((e) => <meta property="article:tag" content={e} />)}
+      </>
+    )}
+    <meta property="og:locale" content="es_PE" />
+    <meta property="og:site_name" content={site.nombre} />
+    <meta property="og:title" content={tituloCompleto} />
+    <meta property="og:description" content={descripcion} />
+    <meta property="og:url" content={canonica} />
+    {/* WhatsApp, Twitter y LinkedIn dibujan la vista previa con estas medidas
+        antes de descargar la imagen: sin ellas, el recorte baila */}
+    <meta property="og:image" content={social} />
+    <meta property="og:image:secure_url" content={social} />
+    <meta property="og:image:type" content={imagen.tipo} />
+    <meta property="og:image:width" content={String(imagen.ancho)} />
+    <meta property="og:image:height" content={String(imagen.alto)} />
+    <meta property="og:image:alt" content={tituloCompleto} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={tituloCompleto} />
+    <meta name="twitter:description" content={descripcion} />
+    <meta name="twitter:image" content={social} />
+    <meta name="twitter:image:alt" content={tituloCompleto} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(organizacion())} />
+    <script type="application/ld+json" set:html={JSON.stringify(sitioWeb())} />
+  </head>
+
+  <body>
+    <VeloNavegacion />
+    <Cromo />
+    <Rail />
+    <Topbar />
+    <MainMenu />
+
+    <main id="top">
+      <slot />
+    </main>
+
+    <SiteFooter />
+
+    <script>
+      import { iniciarUI } from '@/scripts/ui';
+      iniciarUI();
+    </script>
+  </body>
+</html>

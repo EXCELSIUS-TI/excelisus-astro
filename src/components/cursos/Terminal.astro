@@ -1,0 +1,219 @@
+---
+import type { TerminalCurso } from '@/data/cursos';
+
+/**
+ * Editor y terminal: a la izquierda el archivo que se escribe en clase, a la
+ * derecha su ejecución. El comando se teclea solo y la salida aparece línea a
+ * línea cuando la sección entra en pantalla (ver `scripts/terminal.ts`).
+ *
+ * El resaltado se calcula aquí, al construir: es un fragmento fijo y corto, y
+ * así la página no carga ningún resaltador de sintaxis.
+ */
+type Props = { terminal: TerminalCurso };
+const { terminal: t } = Astro.props;
+
+const PALABRAS =
+  /\b(import|from|as|def|return|if|else|elif|for|while|in|not|and|or|None|True|False|with|print|lambda)\b/;
+
+/** Trocea una línea de Python en fragmentos con su tipo. */
+function trocear(linea: string): { texto: string; clase: string }[] {
+  const comentario = linea.indexOf('#');
+  if (comentario !== -1 && !linea.slice(0, comentario).includes('"')) {
+    return [
+      ...trocear(linea.slice(0, comentario)),
+      { texto: linea.slice(comentario), clase: 'com' },
+    ];
+  }
+
+  const piezas: { texto: string; clase: string }[] = [];
+  // cadenas primero: dentro de ellas no se resalta nada más
+  const partes = linea.split(/("[^"]*"|'[^']*')/);
+
+  for (const parte of partes) {
+    if (!parte) continue;
+    if (/^["']/.test(parte)) {
+      piezas.push({ texto: parte, clase: 'str' });
+      continue;
+    }
+    // palabras clave, números y llamadas a función
+    let resto = parte;
+    while (resto) {
+      const m = resto.match(PALABRAS) || resto.match(/\b\d+(?:\.\d+)?\b/) || resto.match(/\b[a-z_]\w*(?=\()/i);
+      if (!m || m.index === undefined) {
+        piezas.push({ texto: resto, clase: '' });
+        break;
+      }
+      if (m.index > 0) piezas.push({ texto: resto.slice(0, m.index), clase: '' });
+      const clase = PALABRAS.test(m[0]) ? 'kw' : /^\d/.test(m[0]) ? 'num' : 'fn';
+      piezas.push({ texto: m[0], clase });
+      resto = resto.slice(m.index + m[0].length);
+    }
+  }
+  return piezas;
+}
+
+const lineas = t.codigo.map(trocear);
+---
+
+<section class="demo" data-terminal>
+  <div class="wrap">
+    <header class="demo__cab rv">
+      <span class="hud">En clase</span>
+      <h2 class="titulo-seccion demo__titulo">
+        <span class="mask"><span>{t.titulo}</span></span>
+      </h2>
+      <p class="entradilla">{t.texto}</p>
+    </header>
+
+    <div class="paneles rv">
+      <!-- archivo -->
+      <figure class="panel">
+        <div class="panel__barra">
+          <span class="panel__luces" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="panel__nombre">{t.archivo}</span>
+        </div>
+        <pre class="panel__cuerpo"><code>{lineas.map((piezas, n) => (
+          /* sin saltos entre estos dos `span`: dentro del bloque de código
+             cualquier espacio de la plantilla acaba viéndose */
+          <span class="linea"><span class="linea__n" aria-hidden="true">{String(n + 1).padStart(2, ' ')}</span><span class="linea__txt">{piezas.map((p) => (p.clase ? <span class={p.clase}>{p.texto}</span> : p.texto))}</span></span>
+        ))}</code></pre>
+      </figure>
+
+      <!-- terminal -->
+      <figure class="panel panel--term">
+        <div class="panel__barra">
+          <span class="panel__luces" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="panel__nombre">bash · excelsius</span>
+        </div>
+        <pre class="panel__cuerpo"><code><span class="term__linea"><span class="prompt">$</span> <span data-comando data-texto={t.comando}>{t.comando}</span><span class="cursor" data-cursor aria-hidden="true"></span></span>{t.salida.map((linea) => (
+          <span class="term__linea" data-salida>{linea || ' '}</span>
+        ))}</code></pre>
+        <figcaption class="panel__pie">{t.pie}</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { iniciarTerminal } from '@/scripts/terminal';
+  iniciarTerminal();
+</script>
+
+<style>
+  .demo { position: relative; z-index: 2; padding-block: clamp(56px, 7vw, 96px); border-top: 1px solid var(--line); }
+  .demo__cab { max-width: 74ch; }
+  .demo__cab .hud { display: block; margin-bottom: 16px; }
+  .demo__titulo { margin-bottom: 4px; }
+
+  .paneles {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 18px;
+    margin-top: clamp(30px, 3.6vw, 48px);
+    align-items: start;
+  }
+  @media (max-width: 960px) {
+    .paneles { grid-template-columns: 1fr; }
+  }
+
+  /* Ventana: los dos paneles son oscuros en cualquier tema, porque un editor
+     y una terminal en claro pierden la referencia de lo que son. */
+  .panel {
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid var(--line-fuerte);
+    background: #0b0f1c;
+    color: #e9edf7;
+  }
+  .panel__barra {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 11px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: #070a14;
+  }
+  .panel__luces { display: flex; gap: 6px; }
+  .panel__luces i {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #3a4152;
+  }
+  .panel__luces i:first-child { background: #ff5f57; }
+  .panel__luces i:nth-child(2) { background: #febc2e; }
+  .panel__luces i:last-child { background: #28c840; }
+  .panel__nombre {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #8b93a8;
+  }
+
+  .panel__cuerpo {
+    margin: 0;
+    padding: 18px 16px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.75;
+    tab-size: 4;
+  }
+  @media (max-width: 520px) {
+    .panel__cuerpo { font-size: 11.5px; }
+  }
+  /* El `pre` se queda en el texto de cada línea —ahí está la sangría del
+     código— y nunca en sus contenedores: puesto en el bloque o en la línea,
+     los saltos que la plantilla mete entre elementos se ven como líneas en
+     blanco. */
+  .panel__cuerpo code { display: block; white-space: normal; }
+  .linea { display: block; white-space: normal; }
+  .linea__txt,
+  .term__linea { white-space: pre; }
+  .term__linea { display: block; }
+  .linea__n {
+    display: inline-block;
+    width: 2.4ch;
+    margin-right: 14px;
+    color: #4a5266;
+    user-select: none;
+  }
+  .linea__txt { color: #d5dcec; }
+
+  /* colores de Python: azul para lo estructural, amarillo para los datos */
+  .kw { color: #5a9fd4; }
+  .str { color: #ffd43b; }
+  .num { color: #ff9e64; }
+  .fn { color: #9ad1ff; }
+  .com { color: #5f6b85; font-style: italic; }
+
+  .panel--term .panel__cuerpo { min-height: 268px; }
+  .term__linea { color: #cfd6e6; }
+  .prompt { color: #5a9fd4; font-weight: 700; }
+  .cursor {
+    display: inline-block;
+    width: 8px;
+    height: 1.05em;
+    margin-left: 2px;
+    background: #ffd43b;
+    vertical-align: text-bottom;
+    animation: parpadeo 1.05s steps(1) infinite;
+  }
+  .cursor[hidden] { display: none; }
+  @keyframes parpadeo { 50% { opacity: 0; } }
+
+  /* mientras no arranca la animación, la salida está oculta */
+  [data-terminal][data-animado] [data-salida] { opacity: 0; }
+  [data-terminal][data-animado] [data-salida][data-visible] { opacity: 1; }
+
+  .panel__pie {
+    padding: 12px 16px 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #6b748c;
+  }
+</style>

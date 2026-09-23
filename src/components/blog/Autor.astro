@@ -1,0 +1,37 @@
+---
+import { autorBlog } from '@/data/blog';
+
+/** Firma del artículo: el equipo, con el isotipo de la marca como avatar. */
+---
+
+<aside class="autor">
+  <img class="autor__logo" src="/favicon.png" alt="" width="56" height="56" loading="lazy" decoding="async" />
+  <div>
+    <span class="hud hud--mute">Escrito por</span>
+    <strong class="autor__nombre">{autorBlog.nombre}</strong>
+    <p class="autor__cargo">{autorBlog.cargo}</p>
+    <p class="autor__texto">{autorBlog.descripcion}</p>
+  </div>
+</aside>
+
+<style>
+  .autor {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 18px;
+    align-items: start;
+    padding: clamp(20px, 2.4vw, 28px);
+    border: 1px solid var(--line);
+    background: var(--velo-azul), var(--superficie);
+  }
+  .autor__logo { width: 56px; height: 56px; }
+  .autor__nombre { display: block; margin-top: 6px; font-size: 17px; }
+  .autor__cargo {
+    margin-top: 2px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--acento);
+  }
+  .autor__texto { margin-top: 10px; font-size: 13.5px; line-height: 1.65; color: var(--mute); }
+</style>

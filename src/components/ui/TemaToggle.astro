@@ -1,0 +1,43 @@
+---
+/**
+ * Cambio de tema. El estado real vive en `data-tema` del <html>, que un script
+ * en línea del <head> escribe antes del primer pintado; aquí solo se alterna y
+ * se guarda la elección.
+ */
+type Props = { class?: string };
+const { class: clase = '' } = Astro.props;
+---
+
+<button
+  type="button"
+  class={`tema ${clase}`}
+  data-tema-toggle
+  aria-label="Cambiar entre tema claro y oscuro"
+  title="Cambiar tema">
+  <svg class="tema__sol" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0-13V1h0v3zm0 19v-3 3zM4.2 5.6 2.1 3.5l1.4-1.4 2.1 2.1-1.4 1.4zm15.1 15.1-2.1-2.1 1.4-1.4 2.1 2.1-1.4 1.4zM1 13v-2h3v2H1zm19 0v-2h3v2h-3zM4.2 18.4l1.4 1.4-2.1 2.1-1.4-1.4 2.1-2.1zM18.4 4.2l1.4-1.4 2.1 2.1-1.4 1.4-2.1-2.1zM11 1h2v3h-2V1zm0 19h2v3h-2v-3z"></path>
+  </svg>
+  <svg class="tema__luna" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M12.3 2a9 9 0 1 0 9.4 11.6 7.3 7.3 0 0 1-9.4-9.4c0-.8.1-1.5.3-2.2a9.3 9.3 0 0 0-.3 0z"></path>
+  </svg>
+</button>
+
+<style>
+  .tema {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border: 1px solid transparent;
+    color: var(--mute);
+    transition: color 0.25s ease, border-color 0.25s ease;
+  }
+  .tema:hover { color: var(--acento); border-color: var(--line); }
+  .tema svg { width: 17px; height: 17px; fill: currentColor; }
+
+  /* se ve el icono del tema al que se va a cambiar, no el del actual */
+  .tema__sol { display: none; }
+  :root[data-tema='oscuro'] .tema__sol { display: block; }
+  :root[data-tema='oscuro'] .tema__luna { display: none; }
+</style>

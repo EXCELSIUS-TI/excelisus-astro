@@ -1,0 +1,91 @@
+---
+import Logo from '@/components/layout/Logo.astro';
+
+/** Modelo del certificado que recibe quien aprueba el curso. */
+type Props = {
+  curso: string;
+  horas: string;
+  /** texto bajo la firma: norma, línea o sector */
+  respaldo?: string;
+};
+
+const { curso, horas, respaldo = 'Certificación por horas académicas' } = Astro.props;
+---
+
+<div class="diploma">
+  <div class="diploma__marco">
+    <div class="diploma__top">
+      <Logo alto={24} />
+      <span class="hud diploma__sello">Modelo referencial</span>
+    </div>
+
+    <strong class="diploma__titulo">Certificado de finalización</strong>
+    <p class="diploma__texto">
+      Otorgado a quien aprueba satisfactoriamente el programa, con el detalle de las competencias
+      alcanzadas y las horas cursadas.
+    </p>
+
+    <ul class="diploma__datos">
+      <li>
+        <span class="hud hud--mute">Nombre del participante</span>
+        <b>Nombre y apellidos</b>
+      </li>
+      <li>
+        <span class="hud hud--mute">Curso completado</span>
+        <b>{curso}</b>
+      </li>
+      <li>
+        <span class="hud hud--mute">Duración</span>
+        <b>{horas}</b>
+      </li>
+      <li>
+        <span class="hud hud--mute">Fecha de emisión</span>
+        <b>Al cierre del programa</b>
+      </li>
+    </ul>
+
+    <span class="diploma__firma">{respaldo}</span>
+  </div>
+</div>
+
+<style>
+  .diploma {
+    padding: clamp(12px, 1.8vw, 22px);
+    border: 1px solid var(--line);
+    background: var(--velo-azul), var(--superficie);
+  }
+  .diploma__marco {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: clamp(22px, 3vw, 36px);
+    border: 1px solid var(--line-fuerte);
+    background: var(--fondo);
+    color: var(--texto);
+  }
+  .diploma__top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .diploma__sello { color: var(--acento); }
+  .diploma__titulo {
+    font-size: clamp(20px, 2.4vw, 30px);
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+  }
+  .diploma__texto { max-width: 46ch; font-size: 13.5px; line-height: 1.65; color: var(--mute); }
+  .diploma__datos { display: flex; flex-direction: column; gap: 12px; }
+  .diploma__datos li {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .diploma__datos b { font-size: 14px; font-weight: 400; line-height: 1.4; }
+  .diploma__firma {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--mute);
+  }
+</style>

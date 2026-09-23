@@ -1,0 +1,91 @@
+---
+import { categoriasBlog } from '@/data/blog';
+import { fechaIso, fechaLegible, minutosDeLectura, type Articulo } from '@/utils/blog';
+import CubiertaArticulo from './CubiertaArticulo.astro';
+
+/** Ficha de un artículo en el listado y en «seguir leyendo». */
+type Props = { articulo: Articulo; retraso?: number };
+const { articulo, retraso = 0 } = Astro.props;
+
+const { data } = articulo;
+const cat = categoriasBlog[data.categoria];
+const minutos = minutosDeLectura(articulo.body);
+const ruta = `/blog/${articulo.id}/`;
+---
+
+<article
+  class="tarjeta-articulo rv"
+  data-categoria={data.categoria}
+  data-retraso={retraso}
+  style={`--tono:${cat.tono};--tono-claro:${cat.tonoClaro}`}>
+  <a href={ruta} class="tarjeta-articulo__enlace">
+    <CubiertaArticulo categoria={data.categoria} slug={articulo.id} minutos={minutos} />
+
+    <div class="tarjeta-articulo__cuerpo">
+      <span class="tarjeta-articulo__cat">{cat.nombre}</span>
+      <h3 class="tarjeta-articulo__titulo">{data.titulo}</h3>
+      <p class="tarjeta-articulo__texto">{data.descripcion}</p>
+
+      <footer class="tarjeta-articulo__pie">
+        <time datetime={fechaIso(data.publicado)}>{fechaLegible(data.publicado)}</time>
+        <span aria-hidden="true">·</span>
+        <span>{minutos} min de lectura</span>
+      </footer>
+    </div>
+  </a>
+</article>
+
+<style>
+  .tarjeta-articulo {
+    display: flex;
+    height: 100%;
+    border: 1px solid var(--line);
+    background: var(--superficie);
+    transition: border-color 0.3s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .tarjeta-articulo:hover {
+    border-color: color-mix(in srgb, var(--tono) 55%, transparent);
+    transform: translateY(-4px);
+  }
+  .tarjeta-articulo__enlace { display: flex; flex-direction: column; width: 100%; }
+
+  .tarjeta-articulo__cuerpo {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 10px;
+    padding: clamp(18px, 2vw, 24px);
+  }
+
+  .tarjeta-articulo__cat {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--tono);
+  }
+  :root[data-tema='claro'] .tarjeta-articulo__cat { color: var(--tono-claro); }
+
+  .tarjeta-articulo__titulo {
+    font-size: clamp(17px, 1.5vw, 20px);
+    line-height: 1.3;
+    letter-spacing: -0.015em;
+    transition: color 0.2s ease;
+  }
+  .tarjeta-articulo:hover .tarjeta-articulo__titulo { color: var(--acento); }
+
+  .tarjeta-articulo__texto { font-size: 13.5px; line-height: 1.65; color: var(--mute); }
+
+  .tarjeta-articulo__pie {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px dashed var(--line);
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    color: var(--mute);
+  }
+</style>

@@ -1,0 +1,23 @@
+---
+/**
+ * Logotipo de Microsoft SQL Server con sus colores: el rojo de la marca
+ * (#ee352c → #a91d22) sobre los grises del cilindro.
+ *
+ * A diferencia de Python y Power BI, este no se incrusta en el HTML: el
+ * archivo pesa 12 kB y sus degradados se llaman `a`, `b` y `c`, así que
+ * inline chocaría consigo mismo y con cualquier otro SVG de la página. Como
+ * archivo aparte no hay colisión de identificadores y además se cachea.
+ */
+type Props = { alto?: number; class?: string };
+const { alto = 48, class: clase = '' } = Astro.props;
+---
+
+<img
+  src="/img/marcas/sqlserver.svg"
+  alt="Microsoft SQL Server"
+  width={alto}
+  height={alto}
+  class={clase}
+  loading="lazy"
+  decoding="async"
+/>

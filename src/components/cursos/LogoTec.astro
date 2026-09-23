@@ -1,0 +1,18 @@
+---
+import type { LogoId } from '@/data/cursos';
+import LogoPython from './LogoPython.astro';
+import LogoPowerBi from './LogoPowerBi.astro';
+import LogoSqlServer from './LogoSqlServer.astro';
+
+/**
+ * Logotipo de la tecnología del curso. Un único punto de entrada: los sitios
+ * que lo pintan (la portada y las cubiertas) no saben qué logos existen, así
+ * que sumar uno nuevo es añadir su componente y una rama aquí.
+ */
+type Props = { logo: LogoId; alto?: number; class?: string };
+const { logo, alto = 48, class: clase = '' } = Astro.props;
+---
+
+{logo === 'python' && <LogoPython alto={alto} class={clase} />}
+{logo === 'powerbi' && <LogoPowerBi alto={alto} class={clase} />}
+{logo === 'sqlserver' && <LogoSqlServer alto={alto} class={clase} />}

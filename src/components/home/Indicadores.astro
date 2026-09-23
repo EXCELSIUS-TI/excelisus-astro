@@ -1,0 +1,52 @@
+---
+import { indicadores } from '@/data/site';
+---
+
+<!-- Franja de cifras: la primera lectura del sitio después del hero. -->
+<section class="franja">
+  <div class="wrap">
+    <ul class="franja__lista">
+      {indicadores.map((i, n) => (
+        <li class="franja__item rv" data-retraso={n * 90}>
+          <b class="mono-num franja__valor">{i.valor}</b>
+          <span class="hud hud--mute franja__etiqueta">{i.etiqueta}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .franja {
+    position: relative;
+    z-index: 2;
+    border-top: 1px solid var(--line);
+    background: var(--fondo);
+    padding-block: clamp(34px, 4vw, 56px);
+  }
+
+  .franja__lista {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: clamp(20px, 3vw, 48px);
+  }
+  @media (max-width: 760px) {
+    .franja__lista { grid-template-columns: repeat(2, 1fr); gap: 26px; }
+  }
+
+  .franja__item {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-left: 18px;
+    border-left: 1px solid var(--line);
+  }
+  .franja__valor {
+    font-size: clamp(30px, 3.6vw, 52px);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.05em;
+    color: var(--acento);
+  }
+  .franja__etiqueta { line-height: 1.6; }
+</style>

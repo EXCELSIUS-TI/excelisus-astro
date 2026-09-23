@@ -1,0 +1,641 @@
+---
+import Base from '@/layouts/Base.astro';
+import Logo from '@/components/layout/Logo.astro';
+import Formulario from '@/components/ui/Formulario.astro';
+import TarjetaCurso from '@/components/cursos/TarjetaCurso.astro';
+import Institucional from '@/components/comun/Institucional.astro';
+import LogoMarca from '@/components/comun/LogoMarca.astro';
+import { servicioDatos as sd } from '@/data/servicio-datos';
+import { contacto, site, razones, stack } from '@/data/site';
+import { cursosPorCategoria } from '@/data/cursos';
+
+/**
+ * Servicio de análisis de datos. Toma los colores del logotipo de Excelsius
+ * —índigo #211C51, naranja #FF8D00 y dorado #FFC700— mediante la paleta
+ * `indigo`, con el naranja alternando en algunas secciones.
+ */
+
+const url = `${site.url}/servicio-analisis-de-datos/`;
+const cursosDatos = cursosPorCategoria('datos').slice(0, 3);
+
+const esquemas = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: 'Análisis de datos y Business Intelligence',
+    serviceType: 'Consultoría en análisis de datos, Business Intelligence y analítica avanzada',
+    url,
+    description: sd.respuesta,
+    provider: {
+      '@type': 'Organization',
+      name: site.nombre,
+      url: site.url,
+      telephone: '+51 951 753 920',
+      email: contacto.correo,
+    },
+    areaServed: { '@type': 'Country', name: 'Perú' },
+    availableChannel: {
+      '@type': 'ServiceChannel',
+      serviceUrl: url,
+      servicePhone: '+51 951 753 920',
+      availableLanguage: 'es-PE',
+    },
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: 'Servicios de análisis de datos',
+      itemListElement: sd.servicios.map((s) => ({
+        '@type': 'Offer',
+        itemOffered: { '@type': 'Service', name: s.nombre, description: s.detalle },
+      })),
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: sd.preguntas.map((p) => ({
+      '@type': 'Question',
+      name: p.pregunta,
+      acceptedAnswer: { '@type': 'Answer', text: p.respuesta },
+    })),
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: `${site.url}/` },
+      { '@type': 'ListItem', position: 2, name: 'Servicios', item: `${site.url}/servicios/` },
+      { '@type': 'ListItem', position: 3, name: 'Análisis de datos', item: url },
+    ],
+  },
+];
+---
+
+<Base
+  titulo="Análisis de datos y Business Intelligence"
+  descripcion="Análisis de datos para empresas en Perú: integración de fuentes, modelado, tableros en Power BI, Machine Learning y Fabric, con capacitación del equipo.">
+  {esquemas.map((e) => <script type="application/ld+json" set:html={JSON.stringify(e)} />)}
+
+  <div class="servicio" data-paleta="indigo">
+    <!-- ---------- portada ---------- -->
+    <section class="portada zona-oscura">
+      <div class="portada__fondo" aria-hidden="true"></div>
+      <div class="portada__trama" aria-hidden="true"></div>
+
+      <div class="wrap portada__cuerpo">
+        <nav class="miga" aria-label="Ruta de navegación">
+          <a href="/">Inicio</a>
+          <span aria-hidden="true">/</span>
+          <a href="/servicios/">Servicios</a>
+          <span aria-hidden="true">/</span>
+          <span aria-current="page">Análisis de datos</span>
+        </nav>
+
+        <div class="portada__marca anim-fade" style="animation-delay:.2s">
+          <Logo alto={26} />
+          <span class="hud">{sd.hero.hud}</span>
+        </div>
+
+        <h1 class="display portada__titulo">
+          <span class="mask"><span class="anim-rise">{sd.hero.titulo}</span></span>
+          <span class="mask">
+            <span class="anim-rise" style="animation-delay:.1s">
+              <span class="fill-word" data-word={sd.hero.acento}>{sd.hero.acento}</span>
+            </span>
+          </span>
+        </h1>
+
+        <p class="portada__sub anim-fade" style="animation-delay:.8s">{sd.hero.subtitulo}</p>
+        <p class="portada__bajada anim-fade" style="animation-delay:.9s">{sd.hero.bajada}</p>
+
+        <div class="portada__acciones anim-fade" style="animation-delay:1s">
+          <a href={contacto.whatsapp} target="_blank" rel="noopener noreferrer" class="cta cta--azul">
+            <i></i>{sd.hero.cta}
+          </a>
+          <a href="#metodologia" class="cta cta--linea">Ver la metodología</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- respuesta directa -->
+    <section class="resumen">
+      <div class="wrap resumen__cuerpo">
+        <span class="hud">En corto</span>
+        <p class="resumen__texto">{sd.respuesta}</p>
+      </div>
+    </section>
+
+    <!-- cifras -->
+    <section class="franja">
+      <div class="wrap">
+        <ul class="franja__lista">
+          {sd.cifras.map((c, n) => (
+            <li class="franja__item rv" data-retraso={n * 90}>
+              <b class="mono-num franja__valor">{c.valor}</b>
+              <span class="hud hud--mute">{c.etiqueta}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <!-- ---------- servicios ---------- -->
+    <section id="servicios-datos" class="seccion">
+      <div class="wrap">
+        <header class="cab rv">
+          <span class="hud"><span class="indice">01</span> Nuestros servicios</span>
+          <h2 class="titulo-seccion">
+            <span class="mask"><span>Del dato disperso <em>a la decisión</em></span></span>
+          </h2>
+          <p class="entradilla">
+            Seis frentes que se combinan según el punto de partida de cada organización: hay
+            quien necesita su primer tablero y quien ya tiene veinte y necesita que digan lo mismo.
+          </p>
+        </header>
+
+        <ul class="servicios">
+          {sd.servicios.map((s, n) => (
+            <li class="tarjeta servicio rv" data-retraso={(n % 3) * 80}>
+              <span class="servicio__ico">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d={s.icono}></path></svg>
+              </span>
+              <h3 class="servicio__titulo">{s.nombre}</h3>
+              <p class="servicio__texto">{s.detalle}</p>
+              <a
+                href={contacto.whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="servicio__link">
+                Conversar sobre esto
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11h12.2l-5.6-5.6L12 4l8 8-8 8-1.4-1.4 5.6-5.6H4z"></path></svg>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <!-- ---------- metodología ---------- -->
+    <section id="metodologia" class="seccion metodologia">
+      <div class="wrap">
+        <header class="cab rv">
+          <span class="hud"><span class="indice">02</span> Nuestra metodología</span>
+          <h2 class="titulo-seccion">
+            <span class="mask"><span>Cuatro fases, <em>cuatro entregables</em></span></span>
+          </h2>
+        </header>
+
+        <ol class="fases">
+          {sd.metodologia.map((f) => (
+            <li class="fase rv">
+              <span class="mono-num fase__num">{f.paso}</span>
+              <h3 class="fase__titulo">{f.nombre}</h3>
+              <p class="fase__texto">{f.detalle}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    <!-- ---------- beneficios y stack ---------- -->
+    <section class="seccion">
+      <div class="wrap beneficios">
+        <div class="rv">
+          <span class="hud"><span class="indice">03</span> Beneficios</span>
+          <h2 class="titulo-seccion">
+            <span class="mask"><span>Qué gana <em>la operación</em></span></span>
+          </h2>
+          <ul class="lista-check">
+            {sd.beneficios.map((b) => (
+              <li>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"></path></svg>
+                {b}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <aside class="tecnologias rv">
+          <span class="hud">Tecnologías</span>
+          <ul class="tecnologias__logos">
+            <li><LogoMarca marca="microsoft" alto={30} /></li>
+            <li><LogoMarca marca="sqlserver" alto={30} /></li>
+            <li><LogoMarca marca="python" alto={30} /></li>
+            <li><LogoMarca marca="google" alto={30} /></li>
+          </ul>
+          <ul class="tecnologias__grupos">
+            {stack.map((g) => (
+              <li>
+                <span class="hud hud--mute">{g.grupo}</span>
+                <span>{g.items.join(' · ')}</span>
+              </li>
+            ))}
+          </ul>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ---------- por qué elegirnos ---------- -->
+    <section class="seccion porque">
+      <div class="wrap">
+        <header class="cab rv">
+          <span class="hud"><span class="indice">04</span> Por qué elegirnos</span>
+          <h2 class="titulo-seccion">
+            <span class="mask"><span>Ingenieros certificados, <em>presupuesto claro</em></span></span>
+          </h2>
+        </header>
+
+        <ul class="porque__lista">
+          {razones.map((r, n) => (
+            <li class="porque__item rv" data-retraso={n * 70}>
+              <span class="mono-num porque__num">{String(n + 1).padStart(2, '0')}</span>
+              <div>
+                <h3 class="porque__titulo">{r.titulo}</h3>
+                <p class="porque__texto">{r.detalle}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <!-- ---------- preguntas ---------- -->
+    <section id="preguntas" class="seccion faq">
+      <div class="wrap faq__cuerpo">
+        <div class="rv">
+          <span class="hud"><span class="indice">05</span> Preguntas frecuentes</span>
+          <h2 class="titulo-seccion">
+            <span class="mask"><span>Lo que <em>suelen preguntar</em></span></span>
+          </h2>
+          <p class="entradilla">
+            Si tu duda no está aquí, escríbenos: respondemos en horario de oficina.
+          </p>
+          <a href={contacto.whatsapp} target="_blank" rel="noopener noreferrer" class="cta cta--borde faq__cta">
+            Preguntar por WhatsApp
+          </a>
+        </div>
+
+        <ul class="faq__lista rv">
+          {sd.preguntas.map((p, n) => (
+            <li class="faq__item" data-acordeon data-abierto={n === 0}>
+              <button type="button" class="faq__boton" data-acordeon-boton aria-expanded={n === 0}>
+                <span>{p.pregunta}</span>
+                <span class="faq__signo" aria-hidden="true"></span>
+              </button>
+              <div class="faq__panel" data-acordeon-panel>
+                <p>{p.respuesta}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <!-- ---------- cursos de la línea ---------- -->
+    <section class="seccion cursos">
+      <div class="wrap">
+        <span class="hud">Formación</span>
+        <h2 class="titulo-seccion cursos__titulo">
+          <span class="mask"><span>También <em>formamos a tu equipo</em></span></span>
+        </h2>
+        <p class="entradilla">
+          Los mismos temas del servicio, en formato curso en vivo. Se dictan abiertos o cerrados
+          para una sola empresa.
+        </p>
+        <ul class="cursos__grid">
+          {cursosDatos.map((c, n) => <li><TarjetaCurso curso={c} retraso={n * 90} /></li>)}
+        </ul>
+      </div>
+    </section>
+
+    <!-- ---------- contacto ---------- -->
+    <section id="cotizacion" class="seccion contacto">
+      <div class="wrap contacto__cuerpo">
+        <div class="rv">
+          <span class="hud">Siguiente paso</span>
+          <h2 class="titulo-seccion">
+            <span class="mask"><span>{sd.cierre.titulo}</span></span>
+          </h2>
+          <p class="entradilla">{sd.cierre.texto}</p>
+          <ul class="contacto__datos">
+            <li><span class="hud hud--mute">WhatsApp</span><a href={contacto.telefonoLink}>{contacto.telefono}</a></li>
+            <li><span class="hud hud--mute">Correo</span><a href={contacto.correoLink}>{contacto.correo}</a></li>
+          </ul>
+        </div>
+
+        <div class="contacto__form rv">
+          <Formulario asunto="Servicio de análisis de datos" />
+        </div>
+      </div>
+    </section>
+
+    <Institucional indice="06" />
+  </div>
+</Base>
+
+<style>
+  .indice { padding-right: 12px; margin-right: 4px; border-right: 1px solid var(--line); color: var(--mute); }
+  .cab { max-width: 74ch; }
+  .cab .hud { display: inline-flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+
+  /* el naranja del logotipo aparece en las secciones intermedias, para que la
+     página no sea un bloque índigo de arriba abajo */
+  .servicio__ico,
+  .fase__num,
+  .porque__num { color: #ff8d00; }
+  :root[data-tema='claro'] .servicio__ico,
+  :root[data-tema='claro'] .fase__num,
+  :root[data-tema='claro'] .porque__num { color: #b35309; }
+
+  /* ---------- portada ---------- */
+  .portada {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: flex-end;
+    min-height: clamp(440px, 70vh, 680px);
+    padding-block: clamp(92px, 11vw, 140px) clamp(40px, 5vw, 70px);
+    overflow: hidden;
+  }
+  .portada__fondo {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(58% 60% at 76% 22%, rgba(33, 28, 81, 0.92), transparent 70%),
+      radial-gradient(44% 50% at 10% 88%, rgba(255, 141, 0, 0.18), transparent 70%),
+      radial-gradient(36% 42% at 52% 6%, rgba(255, 199, 0, 0.1), transparent 70%),
+      #070613;
+  }
+  .portada__trama {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.3;
+    background: repeating-linear-gradient(0deg, var(--trama) 0 1px, transparent 1px 3px);
+  }
+  .portada__cuerpo { position: relative; z-index: 2; }
+
+  .miga {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--mute);
+  }
+  .miga a:hover { color: var(--acento); }
+  .miga [aria-current] { color: var(--texto); }
+
+  .portada__marca { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; color: var(--texto); }
+  .portada__titulo { font-size: clamp(38px, 6.2vw, 88px); line-height: 0.92; max-width: 16ch; }
+  .portada__sub { max-width: 56ch; margin-top: 24px; font-size: clamp(15px, 1.5vw, 20px); line-height: 1.5; }
+  .portada__bajada { max-width: 62ch; margin-top: 14px; font-size: 14.5px; line-height: 1.65; color: var(--mute); }
+  .portada__acciones { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+
+  /* ---------- resumen y cifras ---------- */
+  .resumen {
+    position: relative;
+    z-index: 2;
+    border-top: 2px solid #ff8d00;
+    background: var(--superficie);
+    padding-block: clamp(26px, 3vw, 40px);
+  }
+  .resumen__cuerpo {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: clamp(14px, 2vw, 32px);
+    align-items: start;
+  }
+  @media (max-width: 700px) {
+    .resumen__cuerpo { grid-template-columns: 1fr; gap: 10px; }
+  }
+  .resumen__texto { max-width: 92ch; font-size: clamp(15px, 1.35vw, 18px); line-height: 1.65; }
+
+  .franja {
+    position: relative;
+    z-index: 2;
+    border-top: 1px solid var(--line);
+    background: var(--fondo);
+    padding-block: clamp(32px, 4vw, 52px);
+  }
+  .franja__lista { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(20px, 3vw, 48px); }
+  @media (max-width: 760px) {
+    .franja__lista { grid-template-columns: repeat(2, 1fr); gap: 26px; }
+  }
+  .franja__item { display: flex; flex-direction: column; gap: 10px; padding-left: 18px; border-left: 1px solid var(--line); }
+  .franja__valor {
+    font-size: clamp(28px, 3.4vw, 48px);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.05em;
+    color: var(--acento);
+  }
+
+  /* ---------- servicios ---------- */
+  .servicios {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    margin-top: clamp(36px, 4.4vw, 60px);
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+  @media (max-width: 1000px) {
+    .servicios { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .servicios { grid-template-columns: 1fr; }
+  }
+  .servicio { gap: 13px; }
+  .servicio__ico {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border: 1px solid var(--line);
+    background: color-mix(in srgb, #ff8d00 12%, transparent);
+  }
+  .servicio__ico svg { width: 21px; height: 21px; fill: currentColor; }
+  .servicio__titulo { font-size: clamp(17px, 1.6vw, 21px); line-height: 1.25; text-transform: uppercase; letter-spacing: -0.01em; }
+  .servicio__texto { font-size: 13.8px; line-height: 1.7; color: var(--mute); }
+  .servicio__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: auto;
+    padding-top: 18px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--acento);
+    transition: gap 0.25s ease;
+  }
+  .servicio__link:hover { gap: 15px; }
+  .servicio__link svg { width: 14px; height: 14px; fill: currentColor; }
+
+  /* ---------- metodología ---------- */
+  .metodologia { background: var(--velo-alt), var(--superficie); }
+  .fases {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    margin-top: clamp(36px, 4.4vw, 60px);
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+  @media (max-width: 900px) {
+    .fases { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 560px) {
+    .fases { grid-template-columns: 1fr; }
+  }
+  .fase {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    padding: clamp(22px, 2.4vw, 32px);
+    background: var(--fondo);
+  }
+  .fase__num { font-size: clamp(22px, 2.6vw, 34px); font-weight: 700; line-height: 1; letter-spacing: -0.04em; }
+  .fase__titulo { font-size: 16px; text-transform: uppercase; letter-spacing: -0.01em; }
+  .fase__texto { font-size: 13.5px; line-height: 1.7; color: var(--mute); }
+
+  /* ---------- beneficios ---------- */
+  .beneficios {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: clamp(28px, 4vw, 70px);
+    align-items: start;
+  }
+  @media (max-width: 960px) {
+    .beneficios { grid-template-columns: 1fr; }
+  }
+  .lista-check { display: flex; flex-direction: column; gap: 14px; margin-top: 26px; }
+  .lista-check li { display: flex; align-items: flex-start; gap: 12px; font-size: 14.5px; line-height: 1.6; }
+  .lista-check svg { width: 16px; height: 16px; margin-top: 2px; flex: 0 0 auto; fill: var(--acento); }
+
+  .tecnologias {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: clamp(24px, 2.6vw, 34px);
+    border: 1px solid var(--line);
+    background: var(--superficie);
+  }
+  .tecnologias__logos {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 22px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  .tecnologias__grupos { display: flex; flex-direction: column; gap: 14px; }
+  .tecnologias__grupos li { display: flex; flex-direction: column; gap: 6px; }
+  .tecnologias__grupos li > span:last-child { font-size: 13.5px; color: var(--mute); }
+
+  /* ---------- por qué ---------- */
+  .porque { background: var(--superficie); }
+  .porque__lista {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    margin-top: clamp(34px, 4vw, 56px);
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+  @media (max-width: 760px) {
+    .porque__lista { grid-template-columns: 1fr; }
+  }
+  .porque__item {
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    gap: 14px;
+    padding: clamp(22px, 2.4vw, 30px);
+    background: var(--fondo);
+  }
+  .porque__num { font-size: 13px; letter-spacing: 0.2em; }
+  .porque__titulo { font-size: clamp(16px, 1.5vw, 19px); line-height: 1.3; }
+  .porque__texto { margin-top: 8px; font-size: 13.8px; line-height: 1.7; color: var(--mute); }
+
+  /* ---------- faq ---------- */
+  .faq__cuerpo {
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: clamp(28px, 4vw, 70px);
+    align-items: start;
+  }
+  @media (max-width: 960px) {
+    .faq__cuerpo { grid-template-columns: 1fr; }
+  }
+  .faq__cta { margin-top: 26px; padding: 14px 20px; font-size: 10.5px; }
+  .faq__item { border-bottom: 1px solid var(--line); }
+  .faq__item:first-child { border-top: 1px solid var(--line); }
+  .faq__boton {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    width: 100%;
+    padding-block: 20px;
+    text-align: left;
+    font-size: clamp(14.5px, 1.35vw, 17px);
+    line-height: 1.4;
+    transition: color 0.25s ease;
+  }
+  .faq__boton:hover { color: var(--acento); }
+  .faq__signo { position: relative; flex: 0 0 auto; width: 14px; height: 14px; }
+  .faq__signo::before,
+  .faq__signo::after {
+    content: '';
+    position: absolute;
+    inset: 50% 0 auto;
+    height: 1px;
+    background: currentColor;
+  }
+  .faq__signo::after { transform: rotate(90deg); transition: transform 0.3s ease; }
+  .faq__item[data-abierto='true'] .faq__signo::after { transform: rotate(0deg); }
+  .faq__panel { max-height: 0; overflow: hidden; transition: max-height 0.45s cubic-bezier(0.16, 1, 0.3, 1); }
+  .faq__panel p { padding-bottom: 20px; max-width: 80ch; font-size: 13.8px; line-height: 1.75; color: var(--mute); }
+
+  /* ---------- cursos y contacto ---------- */
+  .cursos { background: var(--superficie); }
+  .cursos__titulo { margin-top: 16px; }
+  .cursos__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-top: clamp(30px, 3.6vw, 48px);
+  }
+  @media (max-width: 1000px) {
+    .cursos__grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .cursos__grid { grid-template-columns: 1fr; }
+  }
+
+  .contacto__cuerpo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(28px, 4vw, 70px);
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    .contacto__cuerpo { grid-template-columns: 1fr; }
+  }
+  .contacto__datos { display: flex; flex-wrap: wrap; gap: 26px; margin-top: 26px; }
+  .contacto__datos li { display: flex; flex-direction: column; gap: 7px; padding-left: 14px; border-left: 1px solid var(--line); }
+  .contacto__datos a { font-size: 15px; transition: color 0.2s ease; }
+  .contacto__datos a:hover { color: var(--acento); }
+  .contacto__form {
+    padding: clamp(24px, 3vw, 40px);
+    border: 1px solid var(--line);
+    background: var(--superficie);
+  }
+</style>

@@ -1,0 +1,81 @@
+---
+import { contacto, rutas } from '@/data/site';
+import Logo from './Logo.astro';
+import TemaToggle from '@/components/ui/TemaToggle.astro';
+---
+
+<!-- Barra fija de la izquierda en escritorio: marca, menú y WhatsApp. -->
+<aside class="rail">
+  <a href={rutas.inicio} aria-label="Ir al inicio" class="rail__marca">
+    <Logo variante="icono" alto={30} prioridad />
+  </a>
+
+  <div class="rail__centro">
+    <button type="button" class="burger" data-menu aria-expanded="false" aria-controls="menu-principal">
+      <span class="visually-hidden">Abrir menú</span>
+      <i></i><i></i><i></i>
+    </button>
+    <span class="hud hud--mute rail__texto" data-menu-texto>Menú</span>
+    <TemaToggle />
+  </div>
+
+  <a href={contacto.whatsapp} target="_blank" rel="noopener noreferrer" class="rail__cta">
+    Solicitar cotización
+  </a>
+</aside>
+
+<style>
+  .rail {
+    position: fixed;
+    inset-block: 0;
+    left: 0;
+    z-index: 80;
+    display: none;
+    width: var(--rail);
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding-block: 22px;
+    border-right: 1px solid var(--line);
+    background: var(--fondo);
+  }
+  @media (min-width: 760px) {
+    .rail { display: flex; }
+  }
+
+  .rail__centro {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  /* `vertical-rl` deja el texto leyéndose de arriba abajo; el giro de media
+     vuelta lo pone de abajo arriba, que es como se lee un rail a la izquierda */
+  /* el rail es estrecho y su texto compite con todo lo demás: va más grande
+     y en negrita para que se lea de un vistazo */
+  .rail__texto {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    color: var(--texto);
+  }
+
+  .rail__cta {
+    padding-block: 16px;
+    /* al girar la caja, el filo de arriba queda abajo: se declara al revés
+       para que la línea siga separando el bloque por su parte superior */
+    border-bottom: 1px solid var(--line);
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-family: var(--mono);
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--acento);
+    transition: color 0.25s ease;
+  }
+  .rail__cta:hover { color: var(--texto); }
+</style>

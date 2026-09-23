@@ -1,0 +1,53 @@
+---
+import { contacto, rutas } from '@/data/site';
+import Logo from './Logo.astro';
+import TemaToggle from '@/components/ui/TemaToggle.astro';
+---
+
+<!-- En móvil el rail desaparece y manda esta barra. -->
+<header class="topbar">
+  <a href={rutas.inicio} aria-label="Ir al inicio" class="topbar__marca">
+    <Logo alto={22} prioridad />
+  </a>
+
+  <div class="topbar__acciones">
+    <a
+      href={contacto.whatsapp}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="hud topbar__wa"
+      aria-label="Escribir por WhatsApp">Cotizar</a>
+    <TemaToggle />
+    <button type="button" class="burger" data-menu aria-expanded="false" aria-controls="menu-principal">
+      <span class="visually-hidden">Abrir menú</span>
+      <i></i><i></i><i></i>
+    </button>
+  </div>
+</header>
+
+<style>
+  .topbar {
+    position: fixed;
+    inset-inline: 0;
+    top: 0;
+    z-index: 80;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    padding-inline: 16px;
+    border-bottom: 1px solid var(--line);
+    background: color-mix(in srgb, var(--fondo) 92%, transparent);
+    backdrop-filter: blur(8px);
+  }
+  @media (min-width: 760px) {
+    .topbar { display: none; }
+  }
+
+  .topbar__marca { color: var(--texto); }
+  .topbar__acciones { display: flex; align-items: center; gap: 6px; }
+  .topbar__wa {
+    padding: 9px 12px;
+    border: 1px solid var(--line);
+  }
+</style>

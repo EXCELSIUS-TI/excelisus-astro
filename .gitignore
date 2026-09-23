@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.astro/
+.DS_Store
+*.log
+.env
+.env.production
+
+# lockfiles de otros gestores: este proyecto usa pnpm
+package-lock.json
+yarn.lock
+pnpm-debug.log*

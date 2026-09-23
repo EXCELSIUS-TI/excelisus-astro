@@ -1,0 +1,56 @@
+---
+/**
+ * Marca de Excelsius: el isotipo de `public/favicon.png` —el mismo archivo que
+ * usa la pestaña del navegador— acompañado del logotipo tipográfico. El PNG
+ * viene con fondo transparente, así que funciona igual en tema claro y oscuro.
+ */
+type Props = {
+  variante?: 'completo' | 'icono';
+  alto?: number;
+  class?: string;
+  /** en el rail y la barra superior conviene no diferirlo */
+  prioridad?: boolean;
+};
+
+const { variante = 'completo', alto = 34, class: clase = '', prioridad = false } = Astro.props;
+---
+
+<span
+  class={`logo logo--${variante} ${clase}`}
+  role="img"
+  aria-label="Excelsius"
+  style={`--logo-alto:${alto}px`}>
+  <img
+    src="/favicon.png"
+    alt=""
+    width={alto}
+    height={alto}
+    class="logo__marca"
+    loading={prioridad ? 'eager' : 'lazy'}
+    decoding="async"
+  />
+  {variante === 'completo' && <span class="logo__texto" aria-hidden="true">EXCELSIUS</span>}
+</span>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--logo-alto) * 0.3);
+    color: inherit;
+  }
+  .logo__marca {
+    width: var(--logo-alto);
+    height: var(--logo-alto);
+    flex: 0 0 auto;
+    object-fit: contain;
+  }
+  .logo__texto {
+    font-family: var(--sans);
+    font-size: calc(var(--logo-alto) * 0.62);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    line-height: 1;
+    white-space: nowrap;
+  }
+</style>

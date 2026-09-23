@@ -1,0 +1,50 @@
+---
+import Orbe from '@/components/ui/Orbe.astro';
+import Logo from './Logo.astro';
+
+/**
+ * Velo que cubre la página durante una navegación. Lo enciende el guion en
+ * línea del `<head>` antes del primer pintado —de ahí que su estado viva en
+ * `data-navegando` del `<html>`— y lo retira `scripts/transicion.ts`.
+ */
+---
+
+<div id="velo-navegacion" class="velo" aria-hidden="true">
+  <div class="velo__centro">
+    <Logo alto={30} prioridad />
+    <Orbe estado="connecting" tamano={64} etiqueta="Cargando la página" />
+    <span class="hud hud--mute">Cargando</span>
+  </div>
+</div>
+
+<style>
+  .velo {
+    position: fixed;
+    inset: 0;
+    z-index: 95;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--fondo);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.35s ease, visibility 0.35s;
+  }
+  :root[data-navegando] .velo {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .velo__centro {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 22px;
+    color: var(--texto);
+  }
+
+  /* quien pide menos movimiento no ve el velo: la navegación es directa */
+  @media (prefers-reduced-motion: reduce) {
+    .velo { display: none; }
+  }
+</style>

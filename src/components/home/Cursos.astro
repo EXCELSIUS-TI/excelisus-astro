@@ -1,0 +1,184 @@
+---
+import { cursosDestacados, categorias } from '@/data/cursos';
+import { contacto } from '@/data/site';
+import Cabecera from '@/components/ui/Cabecera.astro';
+import TarjetaCurso from '@/components/cursos/TarjetaCurso.astro';
+
+const destacados = cursosDestacados();
+---
+
+<section id="cursos" class="seccion">
+  <div class="wrap">
+    <div class="cursos__head">
+      <Cabecera
+        indice="01"
+        hud="Matrículas abiertas 2026"
+        titulo="Cursos de especialización"
+        acento="con IA aplicada"
+        entradilla="Programas en vivo dictados por especialistas en ejercicio, con enfoque práctico y certificación por horas académicas."
+      />
+      <a href="/cursos/" class="cta cta--borde cursos__todos">Ver los 6 cursos</a>
+    </div>
+
+    <ul class="cursos__lineas rv">
+      {categorias.map((c) => (
+        <li>
+          <a href={`/cursos/#${c.id}`}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d={c.icono}></path></svg>
+            <span>
+              <strong>{c.nombre}</strong>
+              <em>{c.descripcion}</em>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <ul class="cursos__grid">
+      {destacados.map((c, n) => <li><TarjetaCurso curso={c} retraso={n * 90} /></li>)}
+    </ul>
+
+    <!-- el bloque se queda oscuro en los dos temas: el texto va sobre foto -->
+    <div class="cursos__cta zona-oscura rv">
+      <span class="cursos__cta-foto" data-paralaje aria-hidden="true"></span>
+      <span class="cursos__cta-velo" aria-hidden="true"></span>
+      <div class="cursos__cta-cuerpo">
+        <h3 class="cursos__cta-titulo">¿No sabes cuál es el curso indicado para ti?</h3>
+        <p class="cursos__cta-texto">
+          Conversemos. Te orientamos sobre la línea de especialización, el temario y las
+          modalidades de pago según tu perfil profesional y tus objetivos.
+        </p>
+      </div>
+      <a href={contacto.whatsapp} target="_blank" rel="noopener noreferrer" class="cta cta--celeste">
+        <i></i>Asesoría gratuita
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cursos__head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 28px;
+    flex-wrap: wrap;
+  }
+  .cursos__todos { flex: 0 0 auto; }
+
+  .cursos__lineas {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    margin-top: clamp(36px, 4vw, 56px);
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+  @media (max-width: 860px) {
+    .cursos__lineas { grid-template-columns: 1fr; }
+  }
+  .cursos__lineas a {
+    display: flex;
+    gap: 14px;
+    padding: 22px;
+    height: 100%;
+    background: var(--fondo);
+    transition: background-color 0.25s ease;
+  }
+  .cursos__lineas a:hover { background: var(--superficie-2); }
+  .cursos__lineas svg { width: 20px; height: 20px; flex: 0 0 auto; fill: var(--acento); }
+  .cursos__lineas strong { display: block; font-size: 14px; line-height: 1.35; }
+  .cursos__lineas em {
+    display: block;
+    margin-top: 5px;
+    font-style: normal;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--mute);
+  }
+
+  .cursos__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-top: 18px;
+  }
+  @media (max-width: 1000px) {
+    .cursos__grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .cursos__grid { grid-template-columns: 1fr; }
+  }
+
+  .cursos__cta {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+    flex-wrap: wrap;
+    margin-top: clamp(36px, 4vw, 56px);
+    padding: clamp(28px, 3.6vw, 48px);
+    overflow: hidden;
+    border: 1px solid var(--line-fuerte);
+    background: var(--fondo);
+  }
+
+  /* La foto sobresale por arriba y por abajo: el paralaje la desplaza hasta
+     60 px y ese margen evita que asome el borde de la caja. */
+  .cursos__cta-foto {
+    position: absolute;
+    inset: -14% 0;
+    z-index: 0;
+    /* encuadre hacia arriba: con `center` el recorte se quedaba en el
+       escritorio y perdía los monitores con el código */
+    background: url('/img/paginicio/fondocodigo.webp') center 18% / cover no-repeat;
+    will-change: transform;
+  }
+  /* Sin tinte de color: solo un oscurecido neutro en la franja donde va el
+     texto, para que el blanco se lea sin tapar la fotografía. */
+  .cursos__cta-velo {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(
+      95deg,
+      rgba(0, 0, 0, 0.72) 0%,
+      rgba(0, 0, 0, 0.5) 40%,
+      rgba(0, 0, 0, 0.12) 72%,
+      transparent 100%
+    );
+  }
+  @media (max-width: 760px) {
+    /* en una sola columna el texto ocupa todo el ancho: el oscurecido pasa a
+       ser vertical para acompañarlo */
+    .cursos__cta-velo {
+      background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0.72) 0%,
+        rgba(0, 0, 0, 0.6) 60%,
+        rgba(0, 0, 0, 0.35) 100%
+      );
+    }
+  }
+  .cursos__cta-cuerpo { position: relative; z-index: 2; }
+  .cursos__cta .cta { position: relative; z-index: 2; }
+  .cursos__cta-titulo {
+    color: #fff;
+    text-shadow: 0 2px 18px rgba(0, 0, 0, 0.55);
+    max-width: 24ch;
+    font-size: clamp(20px, 2.4vw, 30px);
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+  }
+  .cursos__cta-texto {
+    max-width: 58ch;
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.65;
+    color: rgba(255, 255, 255, 0.92);
+    text-shadow: 0 1px 14px rgba(0, 0, 0, 0.6);
+  }
+</style>

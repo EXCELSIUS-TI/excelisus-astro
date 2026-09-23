@@ -1,0 +1,90 @@
+---
+import { pagos, pagosNota, contacto } from '@/data/site';
+
+/** Bloque de medios de pago; se usa en inicio y en cada página de curso. */
+type Props = {
+  indice?: string;
+  titulo?: string;
+  acento?: string;
+  compacto?: boolean;
+};
+
+const {
+  indice,
+  titulo = 'Medios',
+  acento = 'de pago',
+  compacto = false,
+} = Astro.props;
+---
+
+<section id="pagos" class={compacto ? 'pagos pagos--compacto' : 'seccion pagos'}>
+  <div class="wrap">
+    <header class="pagos__cab rv">
+      <span class="hud">
+        {indice && <span class="pagos__indice">{indice}</span>}
+        Matrícula
+      </span>
+      <h2 class="titulo-seccion">
+        <span class="mask"><span>{titulo} <em>{acento}</em></span></span>
+      </h2>
+      <p class="entradilla">{pagosNota}</p>
+    </header>
+
+    <ul class="pagos__lista">
+      {pagos.map((p, n) => (
+        <li class="tarjeta pago rv" data-retraso={(n % 3) * 80}>
+          <span class="pago__ico">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d={p.icono}></path></svg>
+          </span>
+          <h3 class="pago__titulo">{p.nombre}</h3>
+          <p class="pago__texto">{p.detalle}</p>
+        </li>
+      ))}
+    </ul>
+
+    <p class="pagos__pie rv">
+      ¿Dudas con el pago o necesitas factura a nombre de tu empresa? Escríbenos al
+      {' '}<a href={contacto.telefonoLink}>{contacto.telefono}</a> o a
+      {' '}<a href={contacto.correoLink}>{contacto.correo}</a>.
+    </p>
+  </div>
+</section>
+
+<style>
+  .pagos--compacto { position: relative; z-index: 2; padding-block: clamp(56px, 7vw, 96px); border-top: 1px solid var(--line); }
+  .pagos__cab { max-width: 70ch; }
+  .pagos__cab .hud { display: inline-flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+  .pagos__indice { padding-right: 12px; border-right: 1px solid var(--line); color: var(--mute); }
+
+  .pagos__lista {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    margin-top: clamp(34px, 4vw, 56px);
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+  @media (max-width: 960px) {
+    .pagos__lista { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 600px) {
+    .pagos__lista { grid-template-columns: 1fr; }
+  }
+
+  .pago { gap: 12px; }
+  .pago__ico {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--line);
+    background: color-mix(in srgb, var(--acento) 12%, transparent);
+  }
+  .pago__ico svg { width: 20px; height: 20px; fill: var(--acento); }
+  .pago__titulo { font-size: 16px; text-transform: uppercase; letter-spacing: -0.01em; }
+  .pago__texto { font-size: 13.5px; line-height: 1.65; color: var(--mute); }
+
+  .pagos__pie { margin-top: 22px; font-size: 13px; line-height: 1.6; color: var(--mute); }
+  .pagos__pie a { color: var(--acento); }
+</style>

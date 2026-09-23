@@ -1,0 +1,182 @@
+---
+import { contacto, servicios } from '@/data/site';
+import Orbe from '@/components/ui/Orbe.astro';
+import { cursos } from '@/data/cursos';
+
+/**
+ * El sitio se publica estático en cPanel, sin backend: el formulario compone
+ * el mensaje y lo abre en WhatsApp Web o en el cliente de correo. Así no hay
+ * endpoint que mantener ni correos que se pierdan en un PHP sin registro.
+ */
+type Props = { asunto?: string };
+const { asunto = '' } = Astro.props;
+---
+
+<form class="form" data-formulario data-asunto={asunto}>
+  <div class="form__fila">
+    <label class="campo">
+      <span class="hud hud--mute">Nombre y apellido *</span>
+      <input type="text" name="nombre" required autocomplete="name" placeholder="Tu nombre" />
+    </label>
+    <label class="campo">
+      <span class="hud hud--mute">Empresa</span>
+      <input type="text" name="empresa" autocomplete="organization" placeholder="Opcional" />
+    </label>
+  </div>
+
+  <div class="form__fila">
+    <label class="campo">
+      <span class="hud hud--mute">Correo *</span>
+      <input type="email" name="correo" required autocomplete="email" placeholder="tu@correo.com" />
+    </label>
+    <label class="campo">
+      <span class="hud hud--mute">Teléfono</span>
+      <input type="tel" name="telefono" autocomplete="tel" placeholder="+51 999 999 999" />
+    </label>
+  </div>
+
+  <label class="campo">
+    <span class="hud hud--mute">Me interesa</span>
+    <select name="interes">
+      <option value="">Selecciona una opción</option>
+      <optgroup label="Servicios">
+        {servicios.map((s) => <option value={s.nombre}>{s.nombre}</option>)}
+      </optgroup>
+      <optgroup label="Cursos">
+        {cursos.map((c) => <option value={`Curso: ${c.titulo}`}>{c.titulo}</option>)}
+      </optgroup>
+      <option value="Otro">Otro / no estoy seguro</option>
+    </select>
+  </label>
+
+  <label class="campo">
+    <span class="hud hud--mute">Cuéntanos qué necesitas *</span>
+    <textarea name="mensaje" rows="5" required placeholder="Describe el proyecto, el proceso a resolver o la consulta."></textarea>
+  </label>
+
+  <div class="form__pie">
+    <button type="submit" class="cta cta--azul" data-envio>
+      <span class="form__orbe" hidden><Orbe estado="connecting" tamano={20} etiqueta="Abriendo WhatsApp" /></span>
+      <i></i><span data-etiqueta>Enviar por WhatsApp</span>
+    </button>
+    <button type="button" class="cta cta--linea" data-correo data-envio>
+      <span class="form__orbe" hidden><Orbe estado="connecting" tamano={20} etiqueta="Abriendo el correo" /></span>
+      <span data-etiqueta>Enviar por correo</span>
+    </button>
+  </div>
+
+  <p class="form__nota">
+    Respondemos en horario de oficina: {contacto.horario}. También puedes escribir directo a
+    <a href={contacto.correoLink}>{contacto.correo}</a>.
+  </p>
+</form>
+
+<script>
+  const NUMERO = '51951753920';
+
+  document.querySelectorAll<HTMLFormElement>('[data-formulario]').forEach((form) => {
+    const componer = () => {
+      const d = new FormData(form);
+      const asunto = form.dataset.asunto || 'Consulta desde la web';
+      const lineas = [
+        `Hola Excelsius, escribo desde la web (${asunto}).`,
+        '',
+        `Nombre: ${d.get('nombre') ?? ''}`,
+        d.get('empresa') ? `Empresa: ${d.get('empresa')}` : '',
+        `Correo: ${d.get('correo') ?? ''}`,
+        d.get('telefono') ? `Teléfono: ${d.get('telefono')}` : '',
+        d.get('interes') ? `Interés: ${d.get('interes')}` : '',
+        '',
+        String(d.get('mensaje') ?? ''),
+      ].filter(Boolean);
+      return { asunto, texto: lineas.join('\n') };
+    };
+
+    /* Abrir WhatsApp o el cliente de correo tarda un momento y el navegador
+       no avisa de nada: mientras tanto el botón muestra el orbe. */
+    const ocupado = (boton: HTMLElement, texto: string) => {
+      const orbe = boton.querySelector<HTMLElement>('.form__orbe');
+      const etiqueta = boton.querySelector<HTMLElement>('[data-etiqueta]');
+      const guion = boton.querySelector<HTMLElement>('i');
+      const original = etiqueta?.textContent ?? '';
+
+      if (orbe) orbe.hidden = false;
+      if (guion) guion.hidden = true;
+      if (etiqueta) etiqueta.textContent = texto;
+      boton.setAttribute('aria-busy', 'true');
+
+      window.setTimeout(() => {
+        if (orbe) orbe.hidden = true;
+        if (guion) guion.hidden = false;
+        if (etiqueta) etiqueta.textContent = original;
+        boton.removeAttribute('aria-busy');
+      }, 2200);
+    };
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!form.reportValidity()) return;
+      const boton = form.querySelector<HTMLElement>('button[type="submit"]');
+      if (boton) ocupado(boton, 'Abriendo WhatsApp');
+      const { texto } = componer();
+      window.open(`https://wa.me/${NUMERO}?text=${encodeURIComponent(texto)}`, '_blank', 'noopener');
+    });
+
+    form.querySelector<HTMLElement>('[data-correo]')?.addEventListener('click', (e) => {
+      if (!form.reportValidity()) return;
+      ocupado(e.currentTarget as HTMLElement, 'Abriendo el correo');
+      const { asunto, texto } = componer();
+      window.location.href = `mailto:informes@excelsius.biz?subject=${encodeURIComponent(
+        `Web · ${asunto}`,
+      )}&body=${encodeURIComponent(texto)}`;
+    });
+  });
+</script>
+
+<style>
+  .form { display: flex; flex-direction: column; gap: 18px; }
+
+  .form__fila {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+  @media (max-width: 640px) {
+    .form__fila { grid-template-columns: 1fr; }
+  }
+
+  .campo { display: flex; flex-direction: column; gap: 9px; }
+  .campo input,
+  .campo select,
+  .campo textarea {
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--superficie);
+    border: 1px solid var(--line);
+    color: var(--texto);
+    font-size: 14.5px;
+    transition: border-color 0.25s ease, background-color 0.25s ease;
+  }
+  .campo textarea { resize: vertical; min-height: 120px; }
+  .campo input::placeholder,
+  .campo textarea::placeholder { color: color-mix(in srgb, var(--mute) 75%, transparent); }
+  .campo input:focus,
+  .campo select:focus,
+  .campo textarea:focus {
+    outline: none;
+    border-color: var(--acento);
+    background: var(--superficie-2);
+  }
+  .campo select option { background: var(--superficie); }
+
+  .form__pie { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+  .form__orbe { display: inline-flex; align-items: center; }
+  .form__orbe[hidden] { display: none; }
+  /* el botón no debe encogerse al cambiar la etiqueta por «Abriendo…» */
+  .form__pie .cta { min-width: 15.5rem; justify-content: center; }
+  @media (max-width: 420px) {
+    .form__pie .cta { min-width: 0; width: 100%; }
+  }
+  .form__nota { font-size: 12.5px; line-height: 1.6; color: var(--mute); }
+  .form__nota a { color: var(--acento); }
+</style>

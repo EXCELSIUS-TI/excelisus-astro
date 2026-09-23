@@ -1,0 +1,76 @@
+---
+/**
+ * Logotipo de Power BI con sus colores: las tres barras ascendentes en sus
+ * degradados dorados (#c87e0e → #f9e589). Se usa de forma descriptiva, para
+ * identificar la tecnología del curso.
+ *
+ * Igual que con Python, los `id` de degradados, máscara y recorte se generan
+ * por instancia: compartirlos haría que el segundo logotipo de la página se
+ * pintara con las definiciones del primero.
+ */
+type Props = { alto?: number; class?: string };
+const { alto = 48, class: clase = '' } = Astro.props;
+
+const id = Math.random().toString(36).slice(2, 8);
+const g1 = `pbi-1-${id}`;
+const g2 = `pbi-2-${id}`;
+const g3 = `pbi-3-${id}`;
+const silueta = `pbi-s-${id}`;
+const mascara = `pbi-m-${id}`;
+
+/* el logotipo es más alto que ancho: 256 × 342 */
+const ancho = Math.round(alto * (256 / 342));
+---
+
+<svg
+  class={clase}
+  width={ancho}
+  height={alto}
+  viewBox="0 0 256 342"
+  role="img"
+  aria-label="Microsoft Power BI">
+  <defs>
+    <linearGradient id={g1} x1="42.593%" x2="57.245%" y1="0%" y2="93.174%">
+      <stop offset="0%" stop-color="#e6ad10"></stop>
+      <stop offset="100%" stop-color="#c87e0e"></stop>
+    </linearGradient>
+    <linearGradient id={g2} x1="40.122%" x2="62.028%" y1="0%" y2="95.592%">
+      <stop offset="0%" stop-color="#f6d751"></stop>
+      <stop offset="100%" stop-color="#e6ad10"></stop>
+    </linearGradient>
+    <linearGradient id={g3} x1="27.774%" x2="55.012%" y1="0%" y2="96.828%">
+      <stop offset="0%" stop-color="#f9e589"></stop>
+      <stop offset="100%" stop-color="#f6d751"></stop>
+    </linearGradient>
+    <path
+      id={silueta}
+      d="M142.222 14.222C142.222 6.368 148.59 0 156.444 0h85.334C249.632 0 256 6.368 256 14.222v312.89c0 7.854-6.368 14.221-14.222 14.221H14.222C6.368 341.333 0 334.966 0 327.111V184.89c0-7.855 6.368-14.222 14.222-14.222h56.89V99.556c0-7.855 6.367-14.223 14.222-14.223h56.888z"
+    ></path>
+  </defs>
+
+  <mask id={mascara} fill="#fff">
+    <use href={`#${silueta}`}></use>
+  </mask>
+
+  <path fill={`url(#${g1})`} d="M256 0v341.333H142.222V0z" mask={`url(#${mascara})`}></path>
+  <path
+    fill-opacity=".2"
+    d="M184.889 100.978v241.778H71.11v-256h99.556c7.854 0 14.222 6.367 14.222 14.222"
+    mask={`url(#${mascara})`}
+  ></path>
+  <path
+    fill-opacity=".18"
+    d="M184.889 106.667v241.777H71.11v-256h99.556c7.854 0 14.222 6.368 14.222 14.223"
+    mask={`url(#${mascara})`}
+  ></path>
+  <path
+    fill={`url(#${g2})`}
+    d="M184.889 99.556v241.777H71.11v-256h99.556c7.854 0 14.222 6.368 14.222 14.223"
+    mask={`url(#${mascara})`}
+  ></path>
+  <path
+    fill={`url(#${g3})`}
+    d="M0 170.667v170.666h113.778V184.89c0-7.855-6.368-14.222-14.222-14.222z"
+    mask={`url(#${mascara})`}
+  ></path>
+</svg>

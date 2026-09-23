@@ -1,0 +1,6 @@
+# Ajustes del gestor: pnpm 10+ los lee desde aquí, no desde package.json.
+# esbuild trae binarios y sharp compila nativo, así que sus scripts de
+# instalación tienen que poder ejecutarse (en pnpm 11 esto se llama allowBuilds).
+allowBuilds:
+  esbuild: true
+  sharp: true

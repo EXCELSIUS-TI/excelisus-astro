@@ -1,0 +1,322 @@
+---
+import { menu, contacto, site, rutas } from '@/data/site';
+import { categorias, cursosPorCategoria } from '@/data/cursos';
+
+const actual = Astro.url.pathname;
+---
+
+<!-- Menú a pantalla completa; lo abren el rail y la topbar. -->
+<div id="menu-principal" class="menu" data-abierto="false" aria-hidden="true">
+  <!-- cierre propio del menú: el del rail queda a la izquierda y lejos -->
+  <button type="button" class="menu__cerrar" data-menu aria-label="Cerrar menú">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
+    </svg>
+  </button>
+
+  <nav class="menu__nav wrap" aria-label="Menú principal">
+    <ul class="menu__lista">
+      {menu.map((item) =>
+        item.href === rutas.cursos ? (
+          <li class="menu__item" data-submenu data-abierto="false">
+            <button type="button" class="menu__enlace" data-submenu-boton aria-expanded="false">
+              <span class="hud hud--mute menu__indice">{item.indice}</span>
+              <span class="menu__texto display" data-activo={actual.startsWith(rutas.cursos)}>
+                {item.nombre}
+              </span>
+              <span class="menu__caret" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 15.5 5.5 9l1.4-1.4L12 12.7l5.1-5.1L18.5 9z"></path></svg>
+              </span>
+            </button>
+
+            <!-- mega menú: las tres líneas con sus cursos -->
+            <div class="mega" data-submenu-panel>
+              <div class="mega__grid">
+                {categorias.map((c) => (
+                  <div class="mega__col">
+                    <a href={`${rutas.cursos}#${c.id}`} class="mega__cabeza">
+                      <span class="mega__ico">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d={c.icono}></path></svg>
+                      </span>
+                      <span>
+                        <strong>{c.nombre}</strong>
+                        <em>{c.descripcion}</em>
+                      </span>
+                    </a>
+                    <ul class="mega__cursos">
+                      {cursosPorCategoria(c.id).map((k) => (
+                        <li>
+                          <a href={`${rutas.cursos}${k.slug}/`} data-pronto={k.proximo}>
+                            <strong>{k.titulo}</strong>
+                            <span>{k.proximo ? 'Próximo inicio' : `${k.horas} · ${k.sesiones}`}</span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+
+              <div class="mega__pie">
+                <a href="/curso-sst-1/" class="mega__empresa">
+                  <span class="hud">Para empresas</span>
+                  <strong>Capacitaciones SST in house · Ley 29783</strong>
+                </a>
+                <div class="mega__acciones">
+                  <span class="mega__nota">{contacto.horarioClases} · Certificación por horas académicas.</span>
+                  <a href={rutas.cursos} class="mega__todos">Ver todos los cursos &rarr;</a>
+                </div>
+              </div>
+            </div>
+          </li>
+        ) : (
+          <li class="menu__item">
+            <a href={item.href} class="menu__enlace" data-activo={actual === item.href}>
+              <span class="hud hud--mute menu__indice">{item.indice}</span>
+              <span class="menu__texto display">{item.nombre}</span>
+            </a>
+          </li>
+        ),
+      )}
+    </ul>
+
+    <div class="menu__lado">
+      <div class="menu__bloque">
+        <span class="hud">Contacto</span>
+        <ul class="menu__datos">
+          <li><a href={contacto.telefonoLink}>{contacto.telefono}</a></li>
+          <li><a href={contacto.correoLink}>{contacto.correo}</a></li>
+          <li>{contacto.direccion}</li>
+          <li>{contacto.ciudad}</li>
+        </ul>
+        <div class="menu__redes">
+          {contacto.redes.map((r) => (
+            <a href={r.url} target="_blank" rel="noopener noreferrer">{r.nombre}</a>
+          ))}
+        </div>
+      </div>
+
+      <a href={contacto.whatsapp} target="_blank" rel="noopener noreferrer" class="cta cta--azul menu__cta">
+        <i></i>Solicitar cotización
+      </a>
+
+      <p class="menu__claim">{site.claim}.</p>
+    </div>
+  </nav>
+</div>
+
+<style>
+  .menu {
+    position: fixed;
+    inset: 0 0 0 var(--rail);
+    z-index: 70;
+    display: flex;
+    align-items: center;
+    background: var(--fondo);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-2%);
+    transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s;
+    overflow-y: auto;
+  }
+  .menu[data-abierto='true'] {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+  @media (max-width: 759px) {
+    .menu { inset: 60px 0 0 0; align-items: flex-start; padding-block: 28px; }
+  }
+
+  .menu__nav {
+    display: grid;
+    grid-template-columns: 1.25fr 0.75fr;
+    gap: clamp(32px, 6vw, 96px);
+    width: 100%;
+    align-items: start;
+    padding-block: clamp(24px, 4vw, 56px);
+  }
+  @media (max-width: 900px) {
+    .menu__nav { grid-template-columns: 1fr; gap: 32px; }
+  }
+
+  /* `fixed` y no `absolute`: el menú desplaza su contenido en pantallas
+     pequeñas y el aspa debe quedarse donde está */
+  .menu__cerrar {
+    position: fixed;
+    top: clamp(14px, 2vw, 26px);
+    right: clamp(16px, 4vw, 64px);
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--line);
+    color: var(--texto);
+    transition: color 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+  }
+  .menu__cerrar:hover {
+    color: var(--acento);
+    border-color: var(--line-fuerte);
+    transform: rotate(90deg);
+  }
+  .menu__cerrar svg { width: 20px; height: 20px; fill: currentColor; }
+  @media (max-width: 759px) {
+    /* bajo la barra superior, que va por encima del menú */
+    .menu__cerrar { top: 74px; right: 16px; width: 44px; height: 44px; }
+  }
+
+  .menu__item { border-bottom: 1px solid var(--line); }
+  .menu__enlace {
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    width: 100%;
+    padding-block: clamp(11px, 1.4vw, 18px);
+    text-align: left;
+    transition: color 0.25s ease, padding-left 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .menu__enlace:hover { color: var(--acento); padding-left: 12px; }
+  .menu__enlace [data-activo='true'] { color: var(--acento); }
+  .menu__indice { flex: 0 0 auto; }
+  .menu__texto { font-size: clamp(28px, 4.4vw, 56px); }
+
+  .menu__caret {
+    margin-left: auto;
+    align-self: center;
+    display: flex;
+    transition: transform 0.3s ease;
+  }
+  .menu__caret svg { width: 18px; height: 18px; fill: currentColor; }
+  [data-submenu][data-abierto='true'] .menu__caret { transform: rotate(180deg); }
+  [data-submenu][data-abierto='true'] > .menu__enlace { color: var(--acento); }
+
+  /* ---------- mega menú ---------- */
+  .mega {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .mega__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+    padding: 4px 0 20px;
+  }
+  @media (max-width: 900px) {
+    .mega__grid { grid-template-columns: 1fr; gap: 18px; }
+  }
+
+  .mega__cabeza {
+    display: flex;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  .mega__ico {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    background: linear-gradient(135deg, var(--azul), var(--celeste));
+  }
+  .mega__ico svg { width: 17px; height: 17px; fill: #fff; }
+  .mega__cabeza strong { display: block; font-size: 13.5px; line-height: 1.25; }
+  .mega__cabeza em {
+    display: block;
+    margin-top: 3px;
+    font-style: normal;
+    font-size: 11.5px;
+    line-height: 1.4;
+    color: var(--mute);
+  }
+  .mega__cabeza:hover strong { color: var(--acento); }
+
+  .mega__cursos { margin-top: 8px; }
+  .mega__cursos a {
+    display: block;
+    padding: 9px 10px;
+    border-left: 2px solid transparent;
+    transition: background-color 0.2s ease, border-color 0.2s ease, padding-left 0.25s ease;
+  }
+  .mega__cursos a:hover {
+    background: var(--superficie);
+    border-left-color: var(--acento);
+    padding-left: 15px;
+  }
+  .mega__cursos strong { display: block; font-size: 12.8px; font-weight: 600; line-height: 1.3; }
+  .mega__cursos span {
+    display: block;
+    margin-top: 3px;
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--mute);
+  }
+  .mega__cursos a[data-pronto='true'] strong { color: var(--mute); }
+
+  .mega__pie {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    flex-wrap: wrap;
+    padding: 16px 0 22px;
+    border-top: 1px solid var(--line);
+  }
+  .mega__empresa {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px 16px;
+    border: 1px solid var(--line-fuerte);
+    background: var(--velo-azul), var(--superficie);
+    transition: transform 0.25s ease;
+  }
+  .mega__empresa:hover { transform: translateY(-2px); }
+  .mega__empresa strong { font-size: 13.5px; }
+  .mega__acciones { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .mega__nota { font-size: 12px; color: var(--mute); }
+  .mega__todos {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--acento);
+  }
+  .mega__todos:hover { color: var(--texto); }
+
+  /* ---------- columna lateral ---------- */
+  .menu__lado { display: flex; flex-direction: column; gap: 24px; }
+  .menu__bloque { display: flex; flex-direction: column; gap: 14px; }
+
+  .menu__datos { display: flex; flex-direction: column; gap: 7px; font-size: 14px; color: var(--mute); }
+  .menu__datos a { transition: color 0.2s ease; }
+  .menu__datos a:hover { color: var(--acento); }
+
+  .menu__redes { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 4px; }
+  .menu__redes a {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--texto);
+    transition: color 0.2s ease;
+  }
+  .menu__redes a:hover { color: var(--acento); }
+
+  .menu__cta { align-self: flex-start; }
+
+  .menu__claim {
+    max-width: 44ch;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--mute);
+    border-top: 1px solid var(--line);
+    padding-top: 18px;
+  }
+</style>

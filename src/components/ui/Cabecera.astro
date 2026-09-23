@@ -1,0 +1,39 @@
+---
+/** Cabecera común de sección: índice, titular enmascarado y entradilla. */
+type Props = {
+  indice?: string;
+  hud: string;
+  titulo: string;
+  /** palabra final que va en celeste */
+  acento?: string;
+  entradilla?: string;
+  class?: string;
+};
+
+const { indice, hud, titulo, acento, entradilla, class: clase = '' } = Astro.props;
+---
+
+<header class={`cabecera rv ${clase}`}>
+  <span class="hud cabecera__hud">
+    {indice && <span class="cabecera__indice">{indice}</span>}
+    {hud}
+  </span>
+
+  <h2 class="titulo-seccion cabecera__titulo">
+    <span class="mask"><span>{titulo}{acento && ' '}{acento && <em>{acento}</em>}</span></span>
+  </h2>
+
+  {entradilla && <p class="entradilla">{entradilla}</p>}
+  <slot />
+</header>
+
+<style>
+  .cabecera { max-width: 74ch; }
+  .cabecera__hud { display: inline-flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+  .cabecera__indice {
+    padding-right: 12px;
+    border-right: 1px solid var(--line);
+    color: var(--mute);
+  }
+  .cabecera__titulo { max-width: 20ch; }
+</style>

@@ -1,0 +1,62 @@
+---
+import Base from '@/layouts/Base.astro';
+import { menu } from '@/data/site';
+---
+
+<Base
+  titulo="Página no encontrada"
+  descripcion="La dirección que buscas no existe o cambió de sitio. Desde aquí puedes volver al inicio o ir a servicios, cursos y contacto de Excelsius.">
+  <section class="error">
+    <div class="wrap error__cuerpo">
+      <span class="hud">Error 404 · Ruta no resuelta</span>
+      <h1 class="display error__titulo">
+        <span class="mask"><span class="anim-rise">Esta página</span></span>
+        <span class="mask">
+          <span class="anim-rise" style="animation-delay:.1s">
+            <span class="fill-word" data-word="no existe">no existe</span>
+          </span>
+        </span>
+      </h1>
+      <p class="error__texto">
+        La dirección cambió de sitio o nunca estuvo aquí. Estas son las rutas que sí responden:
+      </p>
+
+      <ul class="error__rutas">
+        {menu.map((m) => (
+          <li>
+            <a href={m.href}>
+              <span class="hud hud--mute">{m.indice}</span>
+              {m.nombre}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .error {
+    display: flex;
+    align-items: center;
+    min-height: 78svh;
+    padding-block: clamp(90px, 12vw, 150px);
+    background:
+      radial-gradient(50% 55% at 75% 25%, rgba(4, 48, 207, 0.3), transparent 70%),
+      var(--fondo);
+  }
+  .error__titulo { font-size: clamp(40px, 7vw, 96px); margin-top: 20px; }
+  .error__texto { max-width: 52ch; margin-top: 26px; font-size: 15px; line-height: 1.65; color: var(--mute); }
+
+  .error__rutas { display: flex; flex-wrap: wrap; gap: 1px; margin-top: 34px; background: var(--line); border: 1px solid var(--line); }
+  .error__rutas li { flex: 1 1 160px; background: var(--fondo); }
+  .error__rutas a {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 20px 22px;
+    font-size: 15px;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+  .error__rutas a:hover { background: var(--superficie-2); color: var(--acento); }
+</style>

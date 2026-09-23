@@ -1,0 +1,51 @@
+---
+/**
+ * Orbe de carga de `thinking-orbs`. Se declara en el HTML y lo monta
+ * `scripts/orbes.ts` sobre el canvas; si el JavaScript no llega, no queda
+ * ningún hueco porque el canvas mide lo que mide y nada más.
+ *
+ * Los nueve estados del paquete: working, searching, solving, listening,
+ * connecting, weaving, composing, breathing, shaping.
+ */
+type Props = {
+  estado?:
+    | 'working'
+    | 'searching'
+    | 'solving'
+    | 'listening'
+    | 'connecting'
+    | 'weaving'
+    | 'composing'
+    | 'breathing'
+    | 'shaping';
+  /** el paquete solo trae dos tamaños afinados */
+  tamano?: 64 | 20;
+  etiqueta?: string;
+  class?: string;
+};
+
+const {
+  estado = 'working',
+  tamano = 64,
+  etiqueta = 'Cargando',
+  class: clase = '',
+} = Astro.props;
+---
+
+<canvas
+  class={`orbe ${clase}`}
+  data-orbe
+  data-estado={estado}
+  data-tamano={tamano}
+  width={tamano}
+  height={tamano}
+  style={`width:${tamano}px;height:${tamano}px`}
+  role="img"
+  aria-label={etiqueta}></canvas>
+
+<style>
+  .orbe {
+    display: block;
+    flex: 0 0 auto;
+  }
+</style>

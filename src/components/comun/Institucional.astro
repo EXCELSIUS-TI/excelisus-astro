@@ -1,0 +1,152 @@
+---
+import { contacto, site, marcas } from '@/data/site';
+import Logo from '@/components/layout/Logo.astro';
+import LogoMarca from './LogoMarca.astro';
+
+/** Información institucional y marcas asociadas: cierra inicio y cada curso. */
+type Props = { indice?: string };
+const { indice } = Astro.props;
+---
+
+<section id="institucional" class="seccion institucional">
+  <div class="wrap">
+    <header class="inst__cab rv">
+      <span class="hud">
+        {indice && <span class="inst__indice">{indice}</span>}
+        Información institucional
+      </span>
+      <h2 class="titulo-seccion">
+        <span class="mask"><span>Quiénes <em>respondemos</em></span></span>
+      </h2>
+      <p class="entradilla">{site.claim}. {site.claimFuerte}.</p>
+    </header>
+
+    <div class="inst__cuerpo">
+      <div class="inst__datos rv">
+        <div class="inst__marca">
+          <Logo alto={28} />
+        </div>
+
+        <ul class="inst__lista">
+          <li>
+            <span class="hud hud--mute">Teléfono y WhatsApp</span>
+            <a href={contacto.telefonoLink}>{contacto.telefono}</a>
+          </li>
+          <li>
+            <span class="hud hud--mute">Correo</span>
+            <a href={contacto.correoLink}>{contacto.correo}</a>
+          </li>
+          <li>
+            <span class="hud hud--mute">Dirección</span>
+            <span>{contacto.direccion}</span>
+            <span class="inst__sub">{contacto.ciudad}</span>
+          </li>
+          <li>
+            <span class="hud hud--mute">Atención</span>
+            <span>{contacto.horario}</span>
+            <span class="inst__sub">{contacto.horarioClases}</span>
+          </li>
+        </ul>
+
+        <div class="inst__redes">
+          <span class="hud hud--mute">Redes</span>
+          <div>
+            {contacto.redes.map((r) => (
+              <a href={r.url} target="_blank" rel="noopener noreferrer">{r.nombre}</a>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div class="inst__marcas rv">
+        <span class="hud">Marcas asociadas</span>
+        <p class="inst__nota">
+          Tecnologías, plataformas y estándares con los que trabajamos en proyectos y cursos.
+        </p>
+        <ul>
+          {marcas.map((m) => (
+            <li>
+              <span class="inst__logo"><LogoMarca marca={m.logo} alto={26} /></span>
+              <strong>{m.nombre}</strong>
+              <span>{m.nota}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .inst__cab { max-width: 70ch; }
+  .inst__cab .hud { display: inline-flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+  .inst__indice { padding-right: 12px; border-right: 1px solid var(--line); color: var(--mute); }
+
+  .inst__cuerpo {
+    display: grid;
+    grid-template-columns: 0.95fr 1.05fr;
+    gap: clamp(28px, 4vw, 64px);
+    margin-top: clamp(34px, 4vw, 56px);
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    .inst__cuerpo { grid-template-columns: 1fr; }
+  }
+
+  .inst__datos { display: flex; flex-direction: column; gap: 24px; }
+  .inst__marca { color: var(--texto); }
+
+  .inst__lista { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  @media (max-width: 520px) {
+    .inst__lista { grid-template-columns: 1fr; }
+  }
+  .inst__lista li { display: flex; flex-direction: column; gap: 7px; padding-left: 14px; border-left: 1px solid var(--line); }
+  .inst__lista a { font-size: 15px; transition: color 0.2s ease; }
+  .inst__lista a:hover { color: var(--acento); }
+  .inst__sub { font-size: 13px; color: var(--mute); }
+
+  .inst__redes { display: flex; flex-direction: column; gap: 10px; padding-top: 18px; border-top: 1px solid var(--line); }
+  .inst__redes div { display: flex; flex-wrap: wrap; gap: 16px; }
+  .inst__redes a {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    transition: color 0.2s ease;
+  }
+  .inst__redes a:hover { color: var(--acento); }
+
+  .inst__marcas { display: flex; flex-direction: column; gap: 12px; }
+  .inst__nota { font-size: 13px; line-height: 1.6; color: var(--mute); }
+  .inst__marcas ul {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    margin-top: 8px;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+  @media (max-width: 760px) {
+    .inst__marcas ul { grid-template-columns: repeat(2, 1fr); }
+  }
+  .inst__marcas li {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 18px 16px;
+    background: var(--fondo);
+    transition: background-color 0.25s ease;
+  }
+  /* alto fijo: los logotipos tienen proporciones distintas y sin esto las
+     tarjetas quedaban escalonadas */
+  .inst__marcas .inst__logo {
+    display: flex;
+    align-items: center;
+    height: 30px;
+    margin-bottom: 8px;
+    color: var(--acento);
+  }
+  .inst__marcas li:hover { background: var(--superficie-2); }
+  .inst__marcas strong { font-size: 14px; letter-spacing: -0.01em; }
+  .inst__marcas li span:not(.inst__logo) { font-size: 11.5px; line-height: 1.45; color: var(--mute); }
+</style>

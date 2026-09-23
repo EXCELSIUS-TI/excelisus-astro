@@ -1,0 +1,141 @@
+---
+import { razones, stack } from '@/data/site';
+import { logoStack } from '@/data/logos-stack';
+import Cabecera from '@/components/ui/Cabecera.astro';
+---
+
+<section id="porque" class="seccion porque">
+  <div class="wrap porque__cuerpo">
+    <div class="porque__texto">
+      <Cabecera
+        indice="04"
+        hud="Por qué Excelsius"
+        titulo="Un equipo de ingenieros"
+        acento="full stack"
+        entradilla="Somos EXCELSIUS: un equipo de ingenieros que trabaja proyectos de software para distintos sectores, con inteligencia artificial y tecnologías actuales. Lo que nos separa del resto no es la lista de lenguajes, es cómo entregamos."
+      />
+
+      <ul class="razones">
+        {razones.map((r, n) => (
+          <li class="razon rv" data-retraso={n * 80}>
+            <span class="mono-num razon__num">0{n + 1}</span>
+            <div>
+              <h3 class="razon__titulo">{r.titulo}</h3>
+              <p class="razon__texto">{r.detalle}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <aside class="stack rv">
+      <span class="hud">Stack de trabajo</span>
+      <ul class="stack__grupos">
+        {stack.map((g) => (
+          <li class="stack__grupo">
+            <span class="hud hud--mute">{g.grupo}</span>
+            <ul class="stack__items">
+              {g.items.map((i) => (
+                <li>
+                  {logoStack(i) && (
+                    <img src={logoStack(i)} alt="" width="30" height="30" loading="lazy" decoding="async" />
+                  )}
+                  <span>{i}</span>
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
+      <p class="stack__nota">
+        Elegimos la herramienta según el problema y el presupuesto de operación, no según la moda
+        del trimestre.
+      </p>
+    </aside>
+  </div>
+</section>
+
+<style>
+  .porque__cuerpo {
+    display: grid;
+    grid-template-columns: 1.35fr 0.65fr;
+    gap: clamp(32px, 5vw, 80px);
+    align-items: start;
+  }
+  @media (max-width: 1000px) {
+    .porque__cuerpo { grid-template-columns: 1fr; }
+  }
+
+  .razones { margin-top: clamp(32px, 4vw, 54px); }
+  .razon {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 16px;
+    padding-block: 24px;
+    border-top: 1px solid var(--line);
+  }
+  .razon:last-child { border-bottom: 1px solid var(--line); }
+  .razon__num { font-size: 13px; color: var(--acento); }
+  .razon__titulo { font-size: clamp(16px, 1.5vw, 20px); letter-spacing: -0.01em; }
+  .razon__texto { margin-top: 8px; font-size: 14px; line-height: 1.65; color: var(--mute); }
+
+  .stack {
+    position: sticky;
+    top: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding: clamp(24px, 2.6vw, 34px);
+    border: 1px solid var(--line);
+    background: var(--superficie);
+  }
+  @media (max-width: 1000px) {
+    .stack { position: static; }
+  }
+
+  .stack__grupos { display: flex; flex-direction: column; gap: 20px; }
+  .stack__grupo { display: flex; flex-direction: column; gap: 10px; }
+  /* dos columnas de fichas con el logotipo grande; en móvil el bloque es
+     estrecho y pasan a una sola */
+  .stack__items {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  @media (max-width: 380px) {
+    .stack__items { grid-template-columns: 1fr; }
+  }
+  .stack__items li {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 11px 12px;
+    border: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    transition: border-color 0.25s ease, color 0.25s ease, background-color 0.25s ease;
+  }
+  .stack__items li:hover {
+    border-color: var(--line-fuerte);
+    color: var(--acento);
+    background: var(--superficie-2);
+  }
+  .stack__items img { width: 30px; height: 30px; flex: 0 0 auto; }
+  /* las marcas de color muy oscuro se levantan sobre fondo negro */
+  :root[data-tema='oscuro'] .stack__items img[src*='flutter'],
+  :root[data-tema='oscuro'] .stack__items img[src*='nextdotjs'],
+  :root[data-tema='oscuro'] .stack__items img[src*='php'] {
+    filter: brightness(1.8) saturate(1.1);
+  }
+  /* sin logotipo, la ficha recupera su margen */
+  .stack__items li:not(:has(img)) { padding-left: 14px; }
+
+  .stack__nota {
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--mute);
+  }
+</style>

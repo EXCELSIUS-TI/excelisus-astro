@@ -1,0 +1,135 @@
+---
+/**
+ * Tipografía del cuerpo de los artículos. El Markdown se renderiza fuera del
+ * ámbito de los estilos del componente, así que todo va con `:global`, pero
+ * siempre colgado de `.prosa` para que no escape al resto del sitio.
+ *
+ * El código lleva los dos temas de Shiki (ver `astro.config.mjs`): aquí se
+ * elige cuál se pinta según `data-tema`.
+ */
+---
+
+<div class="prosa">
+  <slot />
+</div>
+
+<style>
+  .prosa {
+    font-size: clamp(16px, 1.25vw, 17.5px);
+    line-height: 1.8;
+    color: var(--texto);
+    overflow-wrap: break-word;
+  }
+
+  .prosa :global(> * + *) { margin-top: 1.1em; }
+
+  .prosa :global(h2),
+  .prosa :global(h3) {
+    scroll-margin-top: 90px;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+  .prosa :global(h2) {
+    margin-top: 2.2em;
+    padding-top: 0.9em;
+    border-top: 1px solid var(--line);
+    font-size: clamp(22px, 2.4vw, 30px);
+  }
+  .prosa :global(h3) {
+    margin-top: 1.7em;
+    font-size: clamp(18px, 1.8vw, 22px);
+    color: var(--acento);
+  }
+
+  .prosa :global(p) { color: color-mix(in srgb, var(--texto) 88%, var(--mute)); }
+  .prosa :global(strong) { color: var(--texto); }
+
+  .prosa :global(a) {
+    color: var(--acento);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    transition: text-decoration-thickness 0.2s ease;
+  }
+  .prosa :global(a:hover) { text-decoration-thickness: 2px; }
+
+  .prosa :global(ul),
+  .prosa :global(ol) { padding-left: 1.3em; }
+  .prosa :global(ul) { list-style: none; }
+  .prosa :global(ul > li) { position: relative; }
+  .prosa :global(ul > li::before) {
+    content: '';
+    position: absolute;
+    left: -1.1em;
+    top: 0.72em;
+    width: 7px;
+    height: 7px;
+    background: var(--acento);
+  }
+  .prosa :global(ol) { list-style: decimal; }
+  .prosa :global(ol > li::marker) { font-family: var(--mono); color: var(--acento); }
+  .prosa :global(li + li) { margin-top: 0.45em; }
+
+  .prosa :global(blockquote) {
+    margin-inline: 0;
+    padding: 16px 20px;
+    border-left: 3px solid var(--acento);
+    background: var(--velo-azul), var(--superficie);
+    font-size: 0.97em;
+  }
+  .prosa :global(blockquote p) { color: var(--texto); }
+
+  /* código en línea */
+  .prosa :global(:not(pre) > code) {
+    padding: 0.1em 0.4em;
+    border: 1px solid var(--line);
+    background: var(--superficie);
+    font-family: var(--mono);
+    font-size: 0.86em;
+    color: var(--acento);
+  }
+
+  /* bloques de código: marco de terminal y los dos temas de Shiki */
+  .prosa :global(pre) {
+    position: relative;
+    padding: 18px 20px;
+    overflow-x: auto;
+    border: 1px solid var(--line-fuerte);
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.7;
+    tab-size: 4;
+  }
+  .prosa :global(pre.astro-code) { background-color: var(--shiki-dark-bg); }
+  .prosa :global(pre.astro-code span) { color: var(--shiki-dark); }
+  :root[data-tema='claro'] .prosa :global(pre.astro-code) { background-color: var(--shiki-light-bg); }
+  :root[data-tema='claro'] .prosa :global(pre.astro-code span) { color: var(--shiki-light); }
+
+  /* tablas con desplazamiento propio en pantallas estrechas */
+  .prosa :global(table) {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+    font-size: 0.9em;
+  }
+  .prosa :global(th),
+  .prosa :global(td) {
+    padding: 10px 14px;
+    border: 1px solid var(--line);
+    text-align: left;
+    vertical-align: top;
+  }
+  .prosa :global(th) {
+    background: var(--superficie-2);
+    font-family: var(--mono);
+    font-size: 0.82em;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .prosa :global(tbody tr:nth-child(even)) { background: var(--superficie); }
+
+  .prosa :global(hr) { border: 0; border-top: 1px solid var(--line); margin-block: 2.4em; }
+</style>

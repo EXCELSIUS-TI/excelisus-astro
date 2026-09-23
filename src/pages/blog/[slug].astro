@@ -1,0 +1,393 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { render } from 'astro:content';
+import Base from '@/layouts/Base.astro';
+import Prosa from '@/components/blog/Prosa.astro';
+import Indice from '@/components/blog/Indice.astro';
+import Compartir from '@/components/blog/Compartir.astro';
+import Autor from '@/components/blog/Autor.astro';
+import TarjetaArticulo from '@/components/blog/TarjetaArticulo.astro';
+import TarjetaCurso from '@/components/cursos/TarjetaCurso.astro';
+import { blog, categoriasBlog } from '@/data/blog';
+import { cursos } from '@/data/cursos';
+import {
+  articulosPublicados,
+  fechaDe,
+  fechaIso,
+  fechaLegible,
+  minutosDeLectura,
+  palabrasDe,
+  relacionados,
+  type Articulo,
+} from '@/utils/blog';
+import { absoluta, seoDe, tarjetaDeArticulo } from '@/seo/seo';
+import { articulo as esquemaArticulo, migas, preguntasFrecuentes } from '@/seo/esquemas';
+
+/**
+ * Plantilla de artículo. Todo sale del frontmatter del Markdown: para publicar
+ * uno nuevo basta con crear el archivo en `src/content/blog/`; el sitemap, el
+ * RSS, los llms.txt y los enlaces relacionados se actualizan solos.
+ */
+export const getStaticPaths = (async () => {
+  const todos = await articulosPublicados();
+  return todos.map((a) => ({ params: { slug: a.id }, props: { entrada: a, todos } }));
+}) satisfies GetStaticPaths;
+
+type Props = { entrada: Articulo; todos: Articulo[] };
+const { entrada, todos } = Astro.props;
+const { data } = entrada;
+
+const { Content, headings } = await render(entrada);
+const cat = categoriasBlog[data.categoria];
+const ruta = `${blog.ruta}${entrada.id}/`;
+const minutos = minutosDeLectura(entrada.body);
+const publicado = fechaIso(data.publicado);
+const actualizado = fechaIso(fechaDe(entrada));
+const imagen = tarjetaDeArticulo(entrada.id);
+const curso = data.curso ? cursos.find((c) => c.slug === data.curso) : undefined;
+const servicio = data.servicio ? seoDe(data.servicio) : undefined;
+const siguientes = relacionados(entrada, todos);
+
+const esquemas = [
+  esquemaArticulo({
+    titulo: data.titulo,
+    descripcion: data.descripcion,
+    ruta,
+    imagen: imagen.src,
+    publicado,
+    actualizado,
+    seccion: cat.nombre,
+    etiquetas: data.etiquetas,
+    palabras: palabrasDe(entrada.body),
+  }),
+  migas([
+    { nombre: 'Inicio', ruta: '/' },
+    { nombre: blog.titulo, ruta: blog.ruta },
+    { nombre: data.titulo, ruta },
+  ]),
+  ...(data.faq.length ? [preguntasFrecuentes(data.faq)] : []),
+];
+---
+
+<Base
+  titulo={data.tituloSeo ?? data.titulo}
+  descripcion={data.descripcion}
+  imagen={imagen}
+  articulo={{ publicado, actualizado, seccion: cat.nombre, etiquetas: data.etiquetas }}>
+  {esquemas.map((e) => <script type="application/ld+json" set:html={JSON.stringify(e)} />)}
+
+  <div class="entrada" data-paleta="sst" style={`--tono:${cat.tono};--tono-claro:${cat.tonoClaro}`}>
+    <!-- ---------- cabecera ---------- -->
+    <header class="cabecera zona-oscura">
+      <div class="cabecera__trama" aria-hidden="true"></div>
+      <div class="cabecera__halo" aria-hidden="true"></div>
+      <svg class="cabecera__icono" viewBox="0 0 24 24" aria-hidden="true"><path d={cat.icono}></path></svg>
+
+      <div class="wrap cabecera__cuerpo">
+        <nav class="migas anim-fade" aria-label="Ruta de navegación">
+          <a href="/">Inicio</a><span aria-hidden="true">/</span>
+          <a href={blog.ruta}>Blog</a><span aria-hidden="true">/</span>
+          <a href={`${blog.ruta}#${data.categoria}`}>{cat.nombre}</a>
+        </nav>
+
+        <div class="cabecera__marca anim-fade" style="animation-delay:.15s">
+          <img src="/favicon.png" alt="" width="40" height="40" />
+          <span class="cabecera__cat">{cat.nombre}</span>
+        </div>
+
+        <h1 class="cabecera__titulo anim-fade" style="animation-delay:.25s">{data.titulo}</h1>
+        <p class="cabecera__descripcion anim-fade" style="animation-delay:.45s">{data.descripcion}</p>
+
+        <ul class="cabecera__meta anim-fade" style="animation-delay:.6s">
+          <li><span class="hud hud--mute">Publicado</span><time datetime={publicado}>{fechaLegible(data.publicado)}</time></li>
+          {data.actualizado && (
+            <li><span class="hud hud--mute">Actualizado</span><time datetime={actualizado}>{fechaLegible(data.actualizado)}</time></li>
+          )}
+          <li><span class="hud hud--mute">Lectura</span><span>{minutos} min</span></li>
+          <li><span class="hud hud--mute">Por</span><span>Equipo Excelsius</span></li>
+        </ul>
+      </div>
+    </header>
+
+    <!-- ---------- cuerpo ---------- -->
+    <div class="wrap cuerpo">
+      <article class="cuerpo__texto">
+        {/* respuesta directa arriba: es lo que citan buscadores y asistentes */}
+        <aside class="en-corto" aria-label="Resumen">
+          <span class="hud">En corto</span>
+          <p>{data.resumen}</p>
+        </aside>
+
+        <Prosa><Content /></Prosa>
+
+        {data.faq.length > 0 && (
+          <section class="faq" aria-labelledby="preguntas-frecuentes">
+            <h2 id="preguntas-frecuentes" class="faq__titulo">Preguntas frecuentes</h2>
+            <ul class="faq__lista">
+              {data.faq.map((f, n) => (
+                <li class="faq__item" data-acordeon data-abierto={n === 0}>
+                  <button type="button" class="faq__boton" data-acordeon-boton aria-expanded={n === 0}>
+                    <span>{f.pregunta}</span>
+                    <span class="faq__signo" aria-hidden="true"></span>
+                  </button>
+                  <div class="faq__panel" data-acordeon-panel>
+                    <p>{f.respuesta}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {data.etiquetas.length > 0 && (
+          <ul class="etiquetas" aria-label="Etiquetas">
+            {data.etiquetas.map((e) => <li>#{e}</li>)}
+          </ul>
+        )}
+
+        <Compartir url={absoluta(ruta)} titulo={data.titulo} />
+        <Autor />
+      </article>
+
+      <aside class="cuerpo__lateral">
+        <div class="lateral__fijo">
+          <Indice encabezados={headings} />
+
+          {curso && (
+            <div class="lateral__curso">
+              <span class="hud">Curso relacionado</span>
+              <TarjetaCurso curso={curso} />
+            </div>
+          )}
+
+          {servicio && (
+            <a href={servicio.ruta} class="lateral__servicio">
+              <span class="hud hud--mute">¿Lo necesitas en tu empresa?</span>
+              <strong>{servicio.titulo}</strong>
+              <span class="lateral__flecha" aria-hidden="true">→</span>
+            </a>
+          )}
+        </div>
+      </aside>
+    </div>
+
+    <!-- ---------- seguir leyendo ---------- -->
+    {siguientes.length > 0 && (
+      <section class="seccion seguir" aria-labelledby="seguir-leyendo">
+        <div class="wrap">
+          <div class="seguir__cabecera">
+            <h2 id="seguir-leyendo" class="titulo-seccion">
+              <span class="mask"><span>Seguir <em>leyendo</em></span></span>
+            </h2>
+            <a href={blog.ruta} class="cta cta--linea"><i></i>Todo el blog</a>
+          </div>
+          <ul class="seguir__rejilla">
+            {siguientes.map((a, n) => (
+              <li><TarjetaArticulo articulo={a} retraso={n * 90} /></li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )}
+  </div>
+</Base>
+
+<script>
+  import { iniciarBlog } from '@/scripts/blog';
+  iniciarBlog();
+</script>
+
+<style>
+  /* ---------- cabecera ---------- */
+  .cabecera {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(120px, 16vh, 160px) 0 clamp(48px, 7vh, 72px);
+    background: var(--fondo);
+  }
+  .cabecera__trama {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(var(--line-fuerte) 1px, transparent 1px);
+    background-size: 22px 22px;
+    mask-image: linear-gradient(90deg, transparent, #000 60%);
+    opacity: 0.5;
+  }
+  .cabecera__halo {
+    position: absolute;
+    inset: -30% -15% auto auto;
+    width: 60vmax;
+    height: 60vmax;
+    background:
+      radial-gradient(circle at 60% 40%, color-mix(in srgb, var(--tono) 45%, transparent), transparent 55%),
+      radial-gradient(circle at 25% 75%, rgba(106, 13, 173, 0.5), transparent 55%);
+    filter: blur(24px);
+    opacity: 0.8;
+  }
+  .cabecera__icono {
+    position: absolute;
+    right: clamp(-40px, 4vw, 80px);
+    bottom: -40px;
+    width: clamp(180px, 26vw, 360px);
+    fill: var(--tono);
+    opacity: 0.08;
+  }
+  .cabecera__cuerpo { position: relative; max-width: 980px; }
+
+  .migas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mute);
+  }
+  .migas a:hover { color: var(--celeste); }
+
+  .cabecera__marca { display: flex; align-items: center; gap: 12px; margin-top: 28px; }
+  .cabecera__marca img { width: 40px; height: 40px; }
+  .cabecera__cat {
+    padding: 6px 10px;
+    border: 1px solid var(--tono);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--tono);
+  }
+  .cabecera__titulo {
+    margin-top: 20px;
+    font-size: clamp(30px, 4.6vw, 58px);
+    line-height: 1.06;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+  .cabecera__descripcion {
+    max-width: 62ch;
+    margin-top: 18px;
+    font-size: clamp(15px, 1.3vw, 18px);
+    line-height: 1.7;
+    color: var(--mute);
+  }
+  .cabecera__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(18px, 3vw, 36px);
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+  .cabecera__meta li { display: grid; gap: 6px; }
+
+  /* ---------- cuerpo ---------- */
+  .cuerpo {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: clamp(32px, 5vw, 72px);
+    align-items: start;
+    padding-block: clamp(40px, 6vw, 80px);
+  }
+  .cuerpo__texto { display: grid; gap: clamp(28px, 3vw, 40px); min-width: 0; max-width: 760px; }
+  @media (max-width: 1024px) {
+    .cuerpo { grid-template-columns: 1fr; }
+    .cuerpo__lateral { order: -1; }
+  }
+
+  .en-corto {
+    padding: clamp(18px, 2.4vw, 26px);
+    border: 1px solid var(--line-fuerte);
+    border-left: 3px solid var(--acento);
+    background: var(--velo-alt), var(--superficie);
+  }
+  .en-corto p { margin-top: 10px; font-size: 16px; line-height: 1.75; }
+
+  /* lateral: índice + curso, fijo mientras se lee */
+  .lateral__fijo { position: sticky; top: 96px; display: grid; gap: 24px; }
+  @media (max-width: 1024px) {
+    .lateral__fijo { position: static; }
+    .lateral__curso,
+    .lateral__servicio { display: none; }
+  }
+  .lateral__curso { display: grid; gap: 12px; }
+  .lateral__servicio {
+    position: relative;
+    display: grid;
+    gap: 8px;
+    padding: 20px 44px 20px 20px;
+    border: 1px solid var(--line);
+    background: var(--velo-azul), var(--superficie);
+    transition: border-color 0.2s ease;
+  }
+  .lateral__servicio:hover { border-color: var(--acento); }
+  .lateral__servicio strong { font-size: 15px; line-height: 1.35; }
+  .lateral__flecha { position: absolute; right: 18px; top: 50%; translate: 0 -50%; color: var(--acento); }
+
+  /* ---------- faq ---------- */
+  .faq { padding-top: 12px; border-top: 1px solid var(--line); }
+  .faq__titulo { font-size: clamp(22px, 2.4vw, 30px); letter-spacing: -0.02em; }
+  .faq__lista { margin-top: 18px; }
+  .faq__item { border-bottom: 1px solid var(--line); }
+  .faq__item:first-child { border-top: 1px solid var(--line); }
+  .faq__boton {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 20px 0;
+    background: none;
+    border: 0;
+    color: var(--texto);
+    font: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+  }
+  .faq__boton:hover { color: var(--acento); }
+  .faq__signo { position: relative; flex: 0 0 auto; width: 14px; height: 14px; }
+  .faq__signo::before,
+  .faq__signo::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    margin-top: -1px;
+    background: var(--acento);
+  }
+  .faq__signo::after { transform: rotate(90deg); transition: transform 0.3s ease; }
+  .faq__item[data-abierto='true'] .faq__signo::after { transform: rotate(0deg); }
+  .faq__panel { max-height: 0; overflow: hidden; transition: max-height 0.45s cubic-bezier(0.16, 1, 0.3, 1); }
+  .faq__panel p { padding-bottom: 22px; font-size: 15px; line-height: 1.75; color: var(--mute); }
+
+  .etiquetas { display: flex; flex-wrap: wrap; gap: 8px; }
+  .etiquetas li {
+    padding: 6px 10px;
+    border: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--mute);
+  }
+
+  /* ---------- seguir leyendo ---------- */
+  .seguir { background: var(--superficie); }
+  .seguir__cabecera {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: clamp(24px, 3vw, 40px);
+  }
+  .seguir__rejilla {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+    gap: clamp(16px, 2vw, 24px);
+  }
+</style>

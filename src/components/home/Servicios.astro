@@ -1,0 +1,118 @@
+---
+import { servicios } from '@/data/site';
+import { logoStack } from '@/data/logos-stack';
+import Cabecera from '@/components/ui/Cabecera.astro';
+---
+
+<section id="servicios" class="seccion">
+  <div class="wrap">
+    <Cabecera
+      indice="02"
+      hud="Qué hacemos"
+      titulo="Tecnología que entra"
+      acento="en operación"
+      entradilla="Seis líneas de trabajo que resuelven el mismo problema desde distintos frentes: que la información de tu empresa deje de vivir en archivos sueltos y empiece a sostener decisiones."
+    />
+
+    <ul class="servicios">
+      {servicios.map((s, n) => (
+        <li class="tarjeta servicio rv" data-retraso={(n % 3) * 90}>
+          <span class="hud hud--mute servicio__indice">{s.indice}</span>
+          <h3 class="servicio__titulo">{s.nombre}</h3>
+          <p class="servicio__texto">{s.resumen}</p>
+          <ul class="servicio__stack">
+            {s.stack.map((t) => (
+              <li>
+                {logoStack(t) && <img src={logoStack(t)} alt="" loading="lazy" decoding="async" />}
+                {t}
+              </li>
+            ))}
+          </ul>
+          <a href={`/servicios/#${s.id}`} class="servicio__link">
+            Ver detalle
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11h12.2l-5.6-5.6L12 4l8 8-8 8-1.4-1.4 5.6-5.6H4z"></path></svg>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .servicios {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    margin-top: clamp(40px, 5vw, 72px);
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+  @media (max-width: 1000px) {
+    .servicios { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .servicios { grid-template-columns: 1fr; }
+  }
+
+  .servicio { gap: 14px; }
+  .servicio__indice { color: var(--acento); }
+  .servicio__titulo {
+    font-size: clamp(18px, 1.6vw, 22px);
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+  }
+  .servicio__texto { font-size: 14px; line-height: 1.65; color: var(--mute); }
+
+  .servicio__stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: auto;
+    padding-top: 20px;
+  }
+  .servicio__stack li {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 10px 5px 7px;
+    border: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mute);
+    transition: border-color 0.25s ease, color 0.25s ease;
+  }
+  .servicio__stack li:hover { border-color: var(--line-fuerte); color: var(--texto); }
+  /* cada logotipo lleva su color de marca */
+  .servicio__stack img {
+    width: 14px;
+    height: 14px;
+    flex: 0 0 auto;
+  }
+  /* solo las marcas de color muy oscuro se levantan sobre fondo negro; a las
+     claras un filtro general les quitaría su color */
+  :root[data-tema='oscuro'] .servicio__stack img[src*='pandas'],
+  :root[data-tema='oscuro'] .servicio__stack img[src*='flutter'],
+  :root[data-tema='oscuro'] .servicio__stack img[src*='wordpress'],
+  :root[data-tema='oscuro'] .servicio__stack img[src*='odoo'] {
+    filter: brightness(1.9) saturate(1.15);
+  }
+  /* sin logotipo, la etiqueta recupera su margen original */
+  .servicio__stack li:not(:has(img)) { padding-left: 10px; }
+
+  .servicio__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: 20px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--acento);
+    transition: gap 0.25s ease;
+  }
+  .servicio__link:hover { gap: 15px; }
+  .servicio__link svg { width: 14px; height: 14px; fill: currentColor; }
+</style>

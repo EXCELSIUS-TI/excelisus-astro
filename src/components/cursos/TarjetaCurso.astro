@@ -1,0 +1,125 @@
+---
+import type { Curso } from '@/data/cursos';
+import { categoriaPorId } from '@/data/cursos';
+import { contacto } from '@/data/site';
+
+type Props = { curso: Curso; retraso?: number };
+const { curso, retraso = 0 } = Astro.props;
+const cat = categoriaPorId(curso.categoria);
+---
+
+<article class="tarjeta curso rv" data-categoria={curso.categoria} data-retraso={retraso}>
+  <div class="curso__top">
+    <span class="curso__cat" data-cat={curso.categoria}>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d={cat.icono}></path></svg>
+      {cat.corto}
+    </span>
+    {curso.proximo ? (
+      <span class="curso__flag curso__flag--pronto">Próximamente</span>
+    ) : (
+      curso.destacado && <span class="curso__flag">{curso.destacado}</span>
+    )}
+  </div>
+
+  <h3 class="curso__titulo">
+    <a href={`/cursos/${curso.slug}/`}>{curso.titulo}</a>
+  </h3>
+  <p class="curso__sub">{curso.subtitulo}</p>
+  <p class="curso__resumen">{curso.resumen}</p>
+
+  <ul class="curso__datos">
+    <li><span class="hud hud--mute">Duración</span><b>{curso.horas}</b></li>
+    <li><span class="hud hud--mute">Sesiones</span><b>{curso.sesiones}</b></li>
+    <li><span class="hud hud--mute">Días</span><b>{curso.dias}</b></li>
+    <li><span class="hud hud--mute">Horario</span><b>{curso.horario}</b></li>
+  </ul>
+
+  <div class="curso__acciones">
+    <a href={`/cursos/${curso.slug}/`} class="cta cta--linea curso__btn">Temario</a>
+    <a
+      href={contacto.whatsapp}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="cta cta--azul curso__btn">{curso.proximo ? 'Avisarme' : 'Inscribirme'}</a>
+  </div>
+</article>
+
+<style>
+  .curso { gap: 12px; }
+
+  .curso__top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+
+  .curso__cat {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .curso__cat svg { width: 14px; height: 14px; fill: currentColor; }
+  .curso__cat[data-cat='seguridad'] { color: var(--cat-seguridad); }
+  .curso__cat[data-cat='marketing'] { color: var(--cat-marketing); }
+  .curso__cat[data-cat='datos'] { color: var(--acento); }
+
+  .curso__flag {
+    flex: 0 0 auto;
+    padding: 5px 10px;
+    background: var(--acento);
+    color: var(--fondo);
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .curso__flag--pronto {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--mute);
+  }
+
+  .curso__titulo {
+    font-size: clamp(18px, 1.5vw, 21px);
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+  }
+  .curso__titulo a { transition: color 0.2s ease; }
+  .curso__titulo a:hover { color: var(--acento); }
+
+  .curso__sub {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--mute);
+  }
+  .curso__resumen { margin-top: 6px; font-size: 13.8px; line-height: 1.65; color: var(--mute); }
+
+  .curso__datos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: auto;
+    padding-top: 22px;
+    border-top: 1px dashed var(--line);
+  }
+  .curso__datos li { display: flex; flex-direction: column; gap: 4px; }
+  .curso__datos b { font-size: 12.5px; font-weight: 400; }
+
+  .curso__acciones { display: flex; gap: 8px; margin-top: 22px; }
+  .curso__btn {
+    flex: 1;
+    justify-content: center;
+    padding: 15px 12px;
+    font-size: 10.5px;
+    letter-spacing: 0.16em;
+    text-align: center;
+  }
+  .curso__btn:hover { letter-spacing: 0.2em; }
+</style>

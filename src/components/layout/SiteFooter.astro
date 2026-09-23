@@ -1,0 +1,109 @@
+---
+import { contacto, menu, site } from '@/data/site';
+import { categorias } from '@/data/cursos';
+import Logo from './Logo.astro';
+
+const anio = new Date().getFullYear();
+---
+
+<footer class="pie">
+  <div class="wrap pie__cuerpo">
+    <div class="pie__marca">
+      <Logo alto={30} />
+      <p class="pie__claim">{site.claim}. {site.claimFuerte}.</p>
+      <div class="pie__redes">
+        {contacto.redes.map((r) => (
+          <a href={r.url} target="_blank" rel="noopener noreferrer">{r.nombre}</a>
+        ))}
+      </div>
+    </div>
+
+    <div class="pie__col">
+      <span class="hud">Navegación</span>
+      <ul>
+        {menu.map((m) => <li><a href={m.href}>{m.nombre}</a></li>)}
+      </ul>
+    </div>
+
+    <div class="pie__col">
+      <span class="hud">Formación</span>
+      <ul>
+        {categorias.map((c) => <li><a href={`/cursos/#${c.id}`}>{c.nombre}</a></li>)}
+        <li><a href="/curso-sst-1/">Capacitaciones SST para empresas</a></li>
+        <li><a href="/servicio-analisis-de-datos/">Servicio de análisis de datos</a></li>
+        <li><a href="/software/">Desarrollo de software</a></li>
+      </ul>
+    </div>
+
+    <div class="pie__col">
+      <span class="hud">Contacto</span>
+      <ul>
+        <li><a href={contacto.telefonoLink}>{contacto.telefono}</a></li>
+        <li><a href={contacto.correoLink}>{contacto.correo}</a></li>
+        <li><a href={contacto.whatsapp} target="_blank" rel="noopener noreferrer">WhatsApp</a></li>
+        <li>{contacto.direccion}</li>
+        <li>{contacto.ciudad}</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="wrap pie__legal">
+    <span class="hud hud--mute">© {anio} {site.nombre} · Todos los derechos reservados</span>
+    <span class="hud hud--mute">{contacto.horario}</span>
+    <a href="/politicas-privacidad/" class="hud hud--mute pie__legal-enlace">Políticas de privacidad</a>
+  </div>
+</footer>
+
+<style>
+  .pie {
+    position: relative;
+    z-index: 2;
+    border-top: 1px solid var(--line);
+    background: var(--fondo);
+    padding-top: clamp(48px, 6vw, 84px);
+  }
+
+  .pie__cuerpo {
+    display: grid;
+    grid-template-columns: 1.6fr repeat(3, 1fr);
+    gap: clamp(28px, 4vw, 56px);
+    padding-bottom: clamp(36px, 5vw, 64px);
+  }
+  @media (max-width: 900px) {
+    .pie__cuerpo { grid-template-columns: 1fr 1fr; }
+    .pie__marca { grid-column: 1 / -1; }
+  }
+  @media (max-width: 520px) {
+    .pie__cuerpo { grid-template-columns: 1fr; }
+  }
+
+  .pie__marca { display: flex; flex-direction: column; gap: 18px; color: var(--texto); }
+  .pie__claim { max-width: 40ch; font-size: 13.5px; line-height: 1.65; color: var(--mute); }
+  .pie__redes { display: flex; flex-wrap: wrap; gap: 16px; }
+  .pie__redes a {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    transition: color 0.2s ease;
+  }
+  .pie__redes a:hover { color: var(--acento); }
+
+  .pie__col { display: flex; flex-direction: column; gap: 14px; }
+  .pie__col ul { display: flex; flex-direction: column; gap: 9px; }
+  .pie__col li { font-size: 13.5px; color: var(--mute); line-height: 1.5; }
+  .pie__col a { transition: color 0.2s ease; }
+  .pie__col a:hover { color: var(--acento); }
+
+  .pie__legal-enlace { transition: color 0.2s ease; }
+  .pie__legal-enlace:hover { color: var(--acento); }
+
+  .pie__legal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: space-between;
+    padding-block: 20px;
+    border-top: 1px solid var(--line);
+  }
+</style>

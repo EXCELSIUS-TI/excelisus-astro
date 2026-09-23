@@ -1,0 +1,739 @@
+---
+import Base from '@/layouts/Base.astro';
+import Formulario from '@/components/ui/Formulario.astro';
+import { sst } from '@/data/sst';
+import { contacto } from '@/data/site';
+
+/**
+ * Landing de capacitaciones SST, réplica de `/curso-sst-1/` del WordPress.
+ * Mantiene su paleta propia (morado #6A0DAD, naranja #FF6600, amarillo #FFCC00)
+ * redefiniendo los tokens dentro de `.sst`: el resto del sitio no se entera.
+ */
+
+const url = 'https://www.excelsius.biz/curso-sst-1/';
+
+/* Service describe la oferta; FAQPage alimenta las respuestas directas de
+   buscadores y asistentes; BreadcrumbList sitúa la página en el sitio. */
+const esquemas = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: 'Capacitaciones SST para empresas',
+    serviceType: 'Capacitaciones en Seguridad y Salud en el Trabajo (SST)',
+    url,
+    provider: {
+      '@type': 'Organization',
+      name: 'EXCELSIUS',
+      url: 'https://www.excelsius.biz',
+      telephone: '+51 951 753 920',
+      email: contacto.correo,
+    },
+    areaServed: { '@type': 'Country', name: 'Perú' },
+    availableChannel: {
+      '@type': 'ServiceChannel',
+      serviceUrl: url,
+      servicePhone: '+51 951 753 920',
+      availableLanguage: 'es-PE',
+    },
+    description:
+      'Capacitaciones SST virtuales y presenciales para empresas en Lima y todo el Perú, conforme a la Ley 29783: primeros auxilios, trabajos en altura e IPERC, con certificados y registros para auditoría.',
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: 'Capacitaciones SST',
+      itemListElement: sst.capacitaciones.items.map((i) => ({
+        '@type': 'Offer',
+        itemOffered: { '@type': 'Service', name: i.nombre, description: i.detalle },
+      })),
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: sst.faq.items.map((f) => ({
+      '@type': 'Question',
+      name: f.pregunta,
+      acceptedAnswer: { '@type': 'Answer', text: f.respuesta },
+    })),
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://www.excelsius.biz/' },
+      { '@type': 'ListItem', position: 2, name: 'Capacitaciones SST para empresas', item: url },
+    ],
+  },
+];
+---
+
+<Base
+  titulo="Cursos SST en Lima y todo el Perú"
+  descripcion="Capacitaciones en Seguridad y Salud en el Trabajo (SST) para empresas: primeros auxilios, trabajos en altura e IPERC. Cumple la Ley 29783, virtual o presencial.">
+  {esquemas.map((e) => <script type="application/ld+json" set:html={JSON.stringify(e)} />)}
+
+  <div class="sst">
+    <!-- ---------- portada ---------- -->
+    <section class="portada zona-oscura">
+      <div class="portada__fondo" aria-hidden="true"></div>
+      <div class="portada__trama" aria-hidden="true"></div>
+
+      <div class="wrap portada__cuerpo">
+        <span class="etiqueta portada__etiqueta anim-fade" style="animation-delay:.2s">
+          <i></i>{sst.hero.hud}
+        </span>
+
+        <h1 class="display portada__titulo">
+          <span class="mask"><span class="anim-rise">{sst.hero.titulo}</span></span>
+          <span class="mask">
+            <span class="anim-rise" style="animation-delay:.1s">
+              <span class="fill-word" data-word={sst.hero.acento}>{sst.hero.acento}</span>
+            </span>
+          </span>
+        </h1>
+
+        <p class="portada__sub anim-fade" style="animation-delay:.8s">{sst.hero.subtitulo}</p>
+        <p class="portada__bajada anim-fade" style="animation-delay:.9s">{sst.hero.bajada}</p>
+
+        <div class="portada__acciones anim-fade" style="animation-delay:1s">
+          <a href={contacto.whatsapp} target="_blank" rel="noopener noreferrer" class="cta cta--azul">
+            <i></i>{sst.hero.cta}
+          </a>
+          <a href="#contacto-sst" class="cta cta--linea">Ver el temario</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- respuesta directa: lo que cita un asistente al preguntar por el servicio -->
+    <section class="resumen">
+      <div class="wrap resumen__cuerpo">
+        <span class="hud">En corto</span>
+        <p class="resumen__texto">
+          Excelsius dicta capacitaciones en Seguridad y Salud en el Trabajo para empresas en Lima y
+          todo el Perú, virtuales en vivo o presenciales in house. Cubren primeros auxilios,
+          trabajos en altura e IPERC, cumplen la Ley N.° 29783 y entregan certificados digitales,
+          material y registro de asistencia para sustento en auditorías.
+        </p>
+      </div>
+    </section>
+
+    <!-- ---------- cifras ---------- -->
+    <section class="franja">
+      <div class="wrap">
+        <ul class="franja__lista">
+          {sst.cifras.map((c, n) => (
+            <li class="franja__item rv" data-retraso={n * 90}>
+              <b class="mono-num franja__valor">{c.valor}</b>
+              <span class="hud hud--mute">{c.etiqueta}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <!-- ---------- capacitaciones ---------- -->
+    <section class="seccion">
+      <div class="wrap">
+        <header class="cab rv">
+          <span class="hud">Líneas de capacitación</span>
+          <h2 class="titulo-seccion">
+            <span class="mask"><span>{sst.capacitaciones.titulo} <em>{sst.capacitaciones.acento}</em></span></span>
+          </h2>
+          <p class="entradilla">{sst.capacitaciones.entradilla}</p>
+        </header>
+
+        <ul class="cursos">
+          {sst.capacitaciones.items.map((i, n) => (
+            <li class="tarjeta curso rv" data-retraso={n * 90}>
+              <span class="curso__ico">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d={i.icono}></path></svg>
+              </span>
+              <h3 class="curso__titulo">{i.nombre}</h3>
+              <p class="curso__texto">{i.detalle}</p>
+              <a
+                href={contacto.whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="cta cta--borde curso__cta">{sst.capacitaciones.cta}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <!-- ---------- modalidad ---------- -->
+    <section class="seccion modalidad">
+      <div class="wrap">
+        <header class="cab rv">
+          <span class="hud">{sst.modalidad.hud}</span>
+          <h2 class="titulo-seccion">
+            <span class="mask"><span>{sst.modalidad.titulo} <em>{sst.modalidad.acento}</em></span></span>
+          </h2>
+          <p class="entradilla">{sst.modalidad.entradilla}</p>
+        </header>
+
+        <ul class="columnas">
+          {sst.modalidad.columnas.map((c, n) => (
+            <li class="columna rv" data-retraso={n * 70}>
+              <h3 class="columna__titulo">{c.titulo}</h3>
+              <ul class="columna__items">
+                {c.items.map((i) => (
+                  <li>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"></path></svg>
+                    {i}
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
+
+        <a
+          href={contacto.whatsapp}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="cta cta--azul modalidad__cta rv"><i></i>{sst.modalidad.cta}</a>
+      </div>
+    </section>
+
+    <!-- ---------- por qué elegirnos ---------- -->
+    <section class="seccion">
+      <div class="wrap porque">
+        <header class="rv">
+          <span class="hud">Nuestro enfoque</span>
+          <h2 class="titulo-seccion">
+            <span class="mask"><span>{sst.porQue.titulo} <em>{sst.porQue.acento}</em></span></span>
+          </h2>
+          <p class="entradilla">{sst.porQue.entradilla}</p>
+        </header>
+
+        <ul class="porque__lista">
+          {sst.porQue.items.map((i, n) => (
+            <li class="porque__item rv" data-retraso={n * 70}>
+              <span class="mono-num porque__num">{String(n + 1).padStart(2, '0')}</span>
+              <div>
+                <h3 class="porque__titulo">{i.titulo}</h3>
+                <p class="porque__texto">{i.detalle}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <!-- ---------- certificación ---------- -->
+    <section class="seccion certificado">
+      <div class="wrap certificado__cuerpo">
+        <div class="rv">
+          <span class="hud">{sst.certificacion.hud}</span>
+          <h2 class="titulo-seccion">
+            <span class="mask"><span>{sst.certificacion.titulo} <em>{sst.certificacion.acento}</em></span></span>
+          </h2>
+          {sst.certificacion.cuerpo.map((p) => <p class="entradilla">{p}</p>)}
+        </div>
+
+        <div class="diploma rv" aria-hidden="false">
+          <div class="diploma__marco">
+            <span class="hud diploma__sello">Excelsius · SST</span>
+            <strong class="diploma__titulo">Certificado de finalización</strong>
+            <ul class="diploma__datos">
+              {sst.certificacion.detalles.map((d) => (
+                <li>
+                  <span class="hud hud--mute">{d.campo}</span>
+                  <b>{d.valor}</b>
+                </li>
+              ))}
+            </ul>
+            <span class="diploma__firma">Ley N.° 29783 · Seguridad y Salud en el Trabajo</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- información del curso ---------- -->
+    <section class="seccion">
+      <div class="wrap">
+        <header class="cab rv">
+          <span class="hud">Detalle</span>
+          <h2 class="titulo-seccion">
+            <span class="mask"><span>{sst.informacion.titulo} <em>{sst.informacion.acento}</em></span></span>
+          </h2>
+        </header>
+
+        <div class="info rv" data-pestanas>
+          <div class="info__barra" role="tablist" aria-label="Información del curso de SST">
+            {sst.informacion.pestanas.map((p, n) => (
+              <button
+                type="button"
+                role="tab"
+                class="info__pestana"
+                data-pestana={p.id}
+                data-activa={n === 0}
+                aria-selected={n === 0}>{p.nombre}</button>
+            ))}
+          </div>
+
+          {sst.informacion.pestanas.map((p, n) => (
+            <div class="info__panel" role="tabpanel" data-panel={p.id} hidden={n !== 0}>
+              <ul class="info__items">
+                {p.items.map((i) => (
+                  <li>
+                    <h3>{i.titulo}</h3>
+                    <p>{i.detalle}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- preguntas frecuentes ---------- -->
+    <section class="seccion faq">
+      <div class="wrap faq__cuerpo">
+        <div class="rv">
+          <span class="hud">Dudas frecuentes</span>
+          <h2 class="titulo-seccion">
+            <span class="mask"><span>{sst.faq.titulo} <em>{sst.faq.acento}</em></span></span>
+          </h2>
+          <p class="entradilla">{sst.faq.entradilla}</p>
+          <a
+            href={contacto.whatsapp}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="cta cta--azul faq__cta"><i></i>{sst.faq.cta}</a>
+        </div>
+
+        <ul class="faq__lista rv">
+          {sst.faq.items.map((f, n) => (
+            <li class="faq__item" data-acordeon data-abierto={n === 0}>
+              <button type="button" class="faq__boton" data-acordeon-boton aria-expanded={n === 0}>
+                <span>{f.pregunta}</span>
+                <span class="faq__signo" aria-hidden="true"></span>
+              </button>
+              <div class="faq__panel" data-acordeon-panel>
+                <p>{f.respuesta}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <!-- ---------- contacto ---------- -->
+    <section id="contacto-sst" class="seccion contacto">
+      <div class="wrap contacto__cuerpo">
+        <div class="rv">
+          <span class="hud">{sst.contacto.hud}</span>
+          <h2 class="titulo-seccion">
+            <span class="mask"><span>{sst.contacto.titulo} <em>{sst.contacto.acento}</em></span></span>
+          </h2>
+          <p class="entradilla">{sst.contacto.entradilla}</p>
+
+          <ul class="contacto__datos">
+            <li>
+              <span class="hud hud--mute">Teléfono</span>
+              <a href={contacto.telefonoLink}>{contacto.telefono}</a>
+            </li>
+            <li>
+              <span class="hud hud--mute">Correo</span>
+              <a href={contacto.correoLink}>{contacto.correo}</a>
+            </li>
+            <li>
+              <span class="hud hud--mute">Cobertura</span>
+              <span>Lima y todo el Perú</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="contacto__form rv">
+          <Formulario asunto="Capacitación SST para empresa" />
+        </div>
+      </div>
+
+      <div class="wrap">
+        <div class="cierre rv">
+          <h2 class="cierre__titulo">{sst.contacto.cierre}</h2>
+          <a href={contacto.whatsapp} target="_blank" rel="noopener noreferrer" class="cta cta--celeste">
+            <i></i>{sst.contacto.cta}
+          </a>
+        </div>
+      </div>
+    </section>
+  </div>
+</Base>
+
+<style>
+  /* ---------- paleta propia de la línea SST ---------- */
+  .sst {
+    --morado: #6a0dad;
+    --morado-osc: #4b2e83;
+    --naranja: #ff6600;
+    --amarillo: #ffcc00;
+
+    /* los componentes compartidos leen estos tokens */
+    --azul: var(--morado);
+    --azul-claro: #8b3fd0;
+    --azul-osc: var(--morado-osc);
+    --celeste: var(--amarillo);
+    --acento: var(--naranja);
+    --acento-contraste: #ffffff;
+    --cta-alt-bg: var(--amarillo);
+    --cta-alt-fg: #2b1205;
+    --line-fuerte: rgba(255, 102, 0, 0.42);
+    --velo-azul: linear-gradient(120deg, rgba(106, 13, 173, 0.5), rgba(255, 102, 0, 0.2) 55%, transparent);
+  }
+  :root[data-tema='claro'] .sst {
+    --acento: #b8430a;
+    --cta-alt-bg: var(--morado);
+    --cta-alt-fg: #ffffff;
+    --line-fuerte: rgba(106, 13, 173, 0.32);
+    --velo-azul: linear-gradient(120deg, rgba(106, 13, 173, 0.12), rgba(255, 204, 0, 0.22) 55%, transparent);
+  }
+  /* la portada es oscura en ambos temas y ahí el naranja sí rinde; el
+     selector repite el tema claro para no perder contra su especificidad */
+  .sst .zona-oscura,
+  :root[data-tema='claro'] .sst .zona-oscura {
+    --acento: var(--naranja);
+    --celeste: var(--amarillo);
+    --cta-alt-bg: var(--amarillo);
+    --cta-alt-fg: #2b1205;
+    --line-fuerte: rgba(255, 102, 0, 0.42);
+  }
+
+  /* ---------- portada ---------- */
+  .portada {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: flex-end;
+    min-height: clamp(420px, 66vh, 660px);
+    padding-block: clamp(96px, 12vw, 150px) clamp(40px, 5vw, 70px);
+    overflow: hidden;
+  }
+  .portada__fondo {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(58% 62% at 76% 22%, rgba(106, 13, 173, 0.62), transparent 70%),
+      radial-gradient(46% 52% at 12% 88%, rgba(255, 102, 0, 0.22), transparent 70%),
+      radial-gradient(40% 46% at 50% 8%, rgba(255, 204, 0, 0.12), transparent 70%),
+      #0a0612;
+  }
+  .portada__trama {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.32;
+    background: repeating-linear-gradient(0deg, var(--trama) 0 1px, transparent 1px 3px);
+  }
+  .portada__cuerpo { position: relative; z-index: 2; }
+  .portada__etiqueta { margin-bottom: 22px; }
+  .portada__titulo { font-size: clamp(38px, 6.2vw, 88px); line-height: 0.9; max-width: 16ch; }
+  .portada__sub {
+    max-width: 58ch;
+    margin-top: 26px;
+    font-size: clamp(16px, 1.6vw, 21px);
+    line-height: 1.5;
+  }
+  .portada__bajada { max-width: 62ch; margin-top: 14px; font-size: 14.5px; line-height: 1.65; color: var(--mute); }
+  .portada__acciones { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+
+  /* ---------- cifras ---------- */
+  .franja {
+    position: relative;
+    z-index: 2;
+    border-top: 1px solid var(--line);
+    background: var(--fondo);
+    padding-block: clamp(34px, 4vw, 56px);
+  }
+  .franja__lista { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(20px, 3vw, 48px); }
+  @media (max-width: 760px) {
+    .franja__lista { grid-template-columns: repeat(2, 1fr); gap: 26px; }
+  }
+  .franja__item {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-left: 18px;
+    border-left: 1px solid var(--line);
+  }
+  .franja__valor {
+    font-size: clamp(30px, 3.6vw, 52px);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.05em;
+    color: var(--acento);
+  }
+
+  .resumen {
+    position: relative;
+    z-index: 2;
+    border-top: 1px solid var(--line);
+    background: var(--superficie);
+    padding-block: clamp(26px, 3vw, 40px);
+  }
+  .resumen__cuerpo {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: clamp(14px, 2vw, 32px);
+    align-items: start;
+  }
+  @media (max-width: 700px) {
+    .resumen__cuerpo { grid-template-columns: 1fr; gap: 10px; }
+  }
+  .resumen__texto { max-width: 92ch; font-size: clamp(15px, 1.35vw, 18px); line-height: 1.65; }
+
+  .cab { max-width: 74ch; }
+  .cab .hud { display: block; margin-bottom: 18px; }
+
+  /* ---------- capacitaciones ---------- */
+  .cursos {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    margin-top: clamp(38px, 4.5vw, 64px);
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+  @media (max-width: 860px) {
+    .cursos { grid-template-columns: 1fr; }
+  }
+  .curso { gap: 14px; }
+  .curso__ico {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    background: linear-gradient(135deg, var(--morado), var(--naranja));
+  }
+  .curso__ico svg { width: 24px; height: 24px; fill: #fff; }
+  .curso__titulo { font-size: clamp(19px, 1.8vw, 24px); text-transform: uppercase; letter-spacing: -0.02em; }
+  .curso__texto { font-size: 14px; line-height: 1.7; color: var(--mute); }
+  .curso__cta { margin-top: auto; padding: 14px 20px; font-size: 10.5px; align-self: flex-start; }
+
+  /* ---------- modalidad ---------- */
+  .modalidad { background: var(--superficie); }
+  .columnas {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    margin-top: clamp(38px, 4.5vw, 64px);
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+  @media (max-width: 900px) {
+    .columnas { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 560px) {
+    .columnas { grid-template-columns: 1fr; }
+  }
+  .columna {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: clamp(22px, 2.4vw, 32px);
+    background: var(--fondo);
+  }
+  .columna__titulo {
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--acento);
+    align-self: flex-start;
+  }
+  .columna__items { display: flex; flex-direction: column; gap: 12px; }
+  .columna__items li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--mute);
+  }
+  .columna__items svg { width: 15px; height: 15px; margin-top: 2px; flex: 0 0 auto; fill: var(--acento); }
+  .modalidad__cta { margin-top: 28px; }
+
+  /* ---------- por qué ---------- */
+  .porque {
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: clamp(32px, 5vw, 76px);
+    align-items: start;
+  }
+  @media (max-width: 960px) {
+    .porque { grid-template-columns: 1fr; }
+  }
+  .porque__lista { display: flex; flex-direction: column; }
+  .porque__item {
+    display: grid;
+    grid-template-columns: 54px 1fr;
+    gap: 16px;
+    padding-block: 24px;
+    border-top: 1px solid var(--line);
+  }
+  .porque__item:last-child { border-bottom: 1px solid var(--line); }
+  .porque__num { font-size: 12px; letter-spacing: 0.2em; color: var(--acento); }
+  .porque__titulo { font-size: clamp(17px, 1.6vw, 21px); text-transform: uppercase; letter-spacing: -0.01em; }
+  .porque__texto { margin-top: 8px; font-size: 14px; line-height: 1.7; color: var(--mute); }
+
+  /* ---------- certificado ---------- */
+  .certificado { background: var(--superficie); }
+  .certificado__cuerpo {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: clamp(32px, 5vw, 76px);
+    align-items: center;
+  }
+  @media (max-width: 960px) {
+    .certificado__cuerpo { grid-template-columns: 1fr; }
+  }
+  .certificado .entradilla { margin-top: 16px; }
+
+  .diploma { padding: clamp(14px, 2vw, 26px); background: var(--velo-azul), var(--fondo); border: 1px solid var(--line); }
+  .diploma__marco {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: clamp(22px, 3vw, 36px);
+    border: 1px solid var(--line-fuerte);
+    background: var(--fondo);
+  }
+  .diploma__sello { color: var(--acento); }
+  .diploma__titulo {
+    font-size: clamp(20px, 2.4vw, 30px);
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+  }
+  .diploma__datos { display: flex; flex-direction: column; gap: 12px; }
+  .diploma__datos li {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .diploma__datos b { font-size: 14px; font-weight: 400; }
+  .diploma__firma { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mute); }
+
+  /* ---------- pestañas ---------- */
+  .info { margin-top: clamp(34px, 4vw, 56px); border: 1px solid var(--line); background: var(--superficie); }
+  .info__barra { display: flex; flex-wrap: wrap; border-bottom: 1px solid var(--line); }
+  .info__pestana {
+    position: relative;
+    padding: 18px 26px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--mute);
+    transition: color 0.25s ease, background-color 0.25s ease;
+  }
+  .info__pestana::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 -1px;
+    height: 2px;
+    background: var(--acento);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+  .info__pestana:hover { color: var(--texto); }
+  .info__pestana[data-activa='true'] { color: var(--acento); background: var(--fondo); }
+  .info__pestana[data-activa='true']::after { transform: scaleX(1); }
+
+  .info__panel { padding: clamp(22px, 3vw, 36px); }
+  .info__items { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px 32px; }
+  @media (max-width: 760px) {
+    .info__items { grid-template-columns: 1fr; }
+  }
+  .info__items li { padding-left: 16px; border-left: 2px solid var(--acento); }
+  .info__items h3 { font-size: 16px; text-transform: uppercase; letter-spacing: -0.01em; }
+  .info__items p { margin-top: 7px; font-size: 13.8px; line-height: 1.65; color: var(--mute); }
+
+  /* ---------- faq ---------- */
+  .faq { background: var(--superficie); }
+  .faq__cuerpo {
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: clamp(32px, 5vw, 76px);
+    align-items: start;
+  }
+  @media (max-width: 960px) {
+    .faq__cuerpo { grid-template-columns: 1fr; }
+  }
+  .faq__cta { margin-top: 28px; }
+
+  .faq__item { border-bottom: 1px solid var(--line); }
+  .faq__item:first-child { border-top: 1px solid var(--line); }
+  .faq__boton {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    width: 100%;
+    padding-block: 22px;
+    text-align: left;
+    font-size: clamp(15px, 1.4vw, 18px);
+    line-height: 1.35;
+    transition: color 0.25s ease;
+  }
+  .faq__boton:hover { color: var(--acento); }
+  .faq__signo { position: relative; flex: 0 0 auto; width: 14px; height: 14px; }
+  .faq__signo::before,
+  .faq__signo::after {
+    content: '';
+    position: absolute;
+    inset: 50% 0 auto;
+    height: 1px;
+    background: currentColor;
+  }
+  .faq__signo::after { transform: rotate(90deg); transition: transform 0.3s ease; }
+  .faq__item[data-abierto='true'] .faq__signo::after { transform: rotate(0deg); }
+  .faq__panel { max-height: 0; overflow: hidden; transition: max-height 0.45s cubic-bezier(0.16, 1, 0.3, 1); }
+  .faq__panel p { padding-bottom: 22px; font-size: 14px; line-height: 1.75; color: var(--mute); }
+
+  /* ---------- contacto ---------- */
+  .contacto__cuerpo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(32px, 5vw, 76px);
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    .contacto__cuerpo { grid-template-columns: 1fr; }
+  }
+  .contacto__datos { display: flex; flex-wrap: wrap; gap: 26px; margin-top: 30px; }
+  .contacto__datos li { display: flex; flex-direction: column; gap: 7px; padding-left: 14px; border-left: 1px solid var(--line); }
+  .contacto__datos a { transition: color 0.2s ease; }
+  .contacto__datos a:hover { color: var(--acento); }
+  .contacto__form {
+    padding: clamp(24px, 3vw, 40px);
+    border: 1px solid var(--line);
+    background: var(--superficie);
+  }
+
+  .cierre {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+    flex-wrap: wrap;
+    margin-top: clamp(40px, 5vw, 72px);
+    padding: clamp(28px, 3.6vw, 48px);
+    border: 1px solid var(--line-fuerte);
+    background: var(--velo-azul), var(--superficie);
+  }
+  .cierre__titulo {
+    max-width: 26ch;
+    font-size: clamp(20px, 2.6vw, 32px);
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+  }
+</style>

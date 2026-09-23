@@ -1,0 +1,160 @@
+---
+import type { Curso } from '@/data/cursos';
+import { categoriaPorId } from '@/data/cursos';
+import LogoTec from './LogoTec.astro';
+
+/**
+ * Imagen de portada del curso. Mientras no haya fotografía propia, se dibuja
+ * por código con la misma retícula del sitio: el icono de la línea, la sigla
+ * del curso y las lecturas técnicas. En cuanto el curso traiga `imagen` o
+ * `imagenEjecucion` en `src/data/cursos.ts`, se pinta la foto en su lugar.
+ */
+type Props = {
+  curso: Curso;
+  variante?: 'portada' | 'ejecucion';
+  class?: string;
+};
+
+const { curso, variante = 'portada', class: clase = '' } = Astro.props;
+const cat = categoriaPorId(curso.categoria);
+const foto = variante === 'portada' ? curso.imagen : curso.imagenEjecucion;
+
+/** Sigla legible: dos o tres iniciales del título. */
+const sigla = curso.titulo
+  .replace(/[^\p{L}\s]/gu, '')
+  .split(/\s+/)
+  .filter((p) => p.length > 2)
+  .slice(0, 3)
+  .map((p) => p[0].toUpperCase())
+  .join('');
+
+/* Duración y sesiones a veces se solapan —«12 clases» y «6 módulos · 12
+   clases»—: se descarta el dato que ya está contenido en el otro. */
+const pie = (variante === 'portada' ? [curso.horas, curso.sesiones] : [curso.dias, curso.horario])
+  .filter((dato, i, todos) => !todos.some((otro, j) => j !== i && otro.includes(dato)));
+---
+
+<figure class={`cubierta cubierta--${variante} ${clase}`} data-cat={curso.categoria}>
+  {foto ? (
+    <>
+      <img src={foto} alt={`${curso.titulo} · Excelsius`} loading="lazy" decoding="async" />
+      {/* los rótulos siguen ahí: con foto se pierde la sigla, pero no la
+          línea de especialización ni los datos del programa */}
+      <span class="cubierta__scrim" aria-hidden="true"></span>
+      <span class="cubierta__marca hud">{cat.corto}</span>
+      <span class="cubierta__pie hud">{pie.join(' · ')}</span>
+    </>
+  ) : (
+    <div class="cubierta__arte" aria-hidden="true">
+      <span class="cubierta__retícula"></span>
+      <span class="cubierta__ico">
+        <svg viewBox="0 0 24 24"><path d={cat.icono}></path></svg>
+      </span>
+      {curso.logo ? (
+        <LogoTec logo={curso.logo} alto={variante === 'portada' ? 150 : 100} class="cubierta__logo" />
+      ) : (
+        <span class="cubierta__sigla mono-num">{sigla}</span>
+      )}
+      <span class="cubierta__marca hud">{cat.corto}</span>
+      <span class="cubierta__pie hud hud--mute">{pie.join(' · ')}</span>
+    </div>
+  )}
+  <figcaption class="visually-hidden">
+    {variante === 'portada'
+      ? `Portada del curso ${curso.titulo}`
+      : `Ejecución del curso ${curso.titulo}`}
+  </figcaption>
+</figure>
+
+<style>
+  .cubierta {
+    position: relative;
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    background: var(--superficie);
+  }
+  /* `>` es importante: sin él esta regla también alcanzaba al logotipo de la
+     tecnología cuando es un <img> (SQL Server), y lo estiraba a todo el
+     tamaño de la cubierta */
+  .cubierta > img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+  .cubierta--portada { aspect-ratio: 16 / 10; }
+  .cubierta--ejecucion { aspect-ratio: 4 / 3; }
+  /* con foto propia manda la proporción de la imagen: recortarla a la caja
+     partía por la mitad a las personas de las fotos verticales */
+  .cubierta:has(> img) { aspect-ratio: auto; }
+  .cubierta:has(> img) > img { height: auto; }
+
+  .cubierta__arte {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background:
+      radial-gradient(60% 60% at 70% 25%, color-mix(in srgb, var(--acento) 26%, transparent), transparent 70%),
+      radial-gradient(50% 50% at 20% 85%, color-mix(in srgb, var(--azul) 30%, transparent), transparent 70%),
+      var(--superficie-2);
+  }
+
+  /* la misma retícula de ocho columnas del sitio, en pequeño */
+  .cubierta__retícula {
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(90deg, transparent 0 calc(25% - 1px), var(--line) calc(25% - 1px) 25%),
+      repeating-linear-gradient(0deg, transparent 0 calc(33.33% - 1px), var(--line) calc(33.33% - 1px) 33.33%);
+    opacity: 0.6;
+  }
+
+  .cubierta__ico {
+    position: absolute;
+    right: -6%;
+    bottom: -12%;
+    display: block;
+    opacity: 0.16;
+  }
+  .cubierta__ico svg {
+    width: clamp(140px, 42%, 260px);
+    height: auto;
+    fill: var(--acento);
+  }
+  .cubierta--ejecucion .cubierta__ico svg { width: clamp(90px, 38%, 150px); }
+
+  .cubierta__sigla {
+    position: relative;
+    font-size: clamp(48px, 12vw, 104px);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.06em;
+    color: var(--texto);
+    opacity: 0.92;
+  }
+  .cubierta--ejecucion .cubierta__sigla { font-size: clamp(34px, 9vw, 64px); }
+
+  /* el logotipo de la tecnología manda sobre la sigla y sobre el icono de la
+     línea, que se apaga para no competir */
+  /* el logotipo conserva el tamaño que pide el componente */
+  .cubierta__logo { position: relative; display: block; width: auto; height: auto; }
+  .cubierta__arte:has(.cubierta__logo) .cubierta__ico { opacity: 0.07; }
+
+  .cubierta__marca { position: absolute; z-index: 2; top: 16px; left: 16px; }
+  .cubierta__pie { position: absolute; z-index: 2; bottom: 16px; left: 16px; right: 16px; line-height: 1.5; }
+
+  /* oscurecido en los extremos para que los rótulos se lean sobre la foto */
+  .cubierta__scrim {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.62) 0%,
+      transparent 26%,
+      transparent 62%,
+      rgba(0, 0, 0, 0.72) 100%
+    );
+  }
+  /* sobre foto los rótulos van en blanco, con el tema que sea */
+  .cubierta:has(> img) .cubierta__marca,
+  .cubierta:has(> img) .cubierta__pie { color: #fff; }
+</style>

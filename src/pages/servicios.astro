@@ -1,0 +1,256 @@
+---
+import Base from '@/layouts/Base.astro';
+import Portada from '@/components/ui/Portada.astro';
+import Formulario from '@/components/ui/Formulario.astro';
+import { servicios, proceso, contacto } from '@/data/site';
+import { logoStack } from '@/data/logos-stack';
+---
+
+<Base
+  titulo="Servicios"
+  descripcion="Desarrollo de software a medida, aplicaciones móviles, diseño web, Business Intelligence con Power BI, Machine Learning e implementación de ERP Odoo.">
+  <Portada
+    hud="Servicios"
+    titulo="Seis frentes,"
+    acento="un objetivo"
+    entradilla="Construimos, integramos y sostenemos el software con el que trabaja tu empresa. Cada línea tiene entregables definidos: sabes qué recibes, cuándo y con qué tecnología."
+    datos={[
+      { etiqueta: 'Líneas de servicio', valor: '06' },
+      { etiqueta: 'Modalidad', valor: 'Proyecto cerrado o bolsa de horas' },
+      { etiqueta: 'Cobertura', valor: 'Perú y remoto' },
+    ]}
+  />
+
+  <section class="seccion">
+    <div class="wrap">
+      <ul class="lista">
+        {servicios.map((s) => (
+          <li id={s.id} class="servicio rv">
+            <div class="servicio__marco">
+              <span class="mono-num servicio__indice">{s.indice}</span>
+              <span class="servicio__linea" aria-hidden="true"></span>
+            </div>
+
+            <div class="servicio__cuerpo">
+              <h2 class="servicio__titulo">{s.nombre}</h2>
+              <p class="servicio__resumen">{s.resumen}</p>
+              <p class="servicio__detalle">{s.detalle}</p>
+
+              <div class="servicio__caja">
+                <div>
+                  <span class="hud">Qué entregamos</span>
+                  <ul class="servicio__entregables">
+                    {s.entregables.map((e) => (
+                      <li>
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"></path></svg>
+                        {e}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <span class="hud">Tecnologías</span>
+                  <ul class="servicio__stack">
+                    {s.stack.map((t) => (
+                      <li>
+                        {logoStack(t) && <img src={logoStack(t)} alt="" loading="lazy" decoding="async" />}
+                        {t}
+                      </li>
+                    ))}
+                  </ul>
+                  <div class="servicio__acciones">
+                    <a
+                      href={contacto.whatsapp}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="cta cta--borde servicio__cta">Cotizar esta línea</a>
+                    {'pagina' in s && (
+                      <a href={s.pagina} class="cta cta--linea servicio__cta">Ver el servicio</a>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="seccion metodo">
+    <div class="wrap">
+      <span class="hud">Cómo se ejecuta</span>
+      <h2 class="titulo-seccion metodo__titulo">
+        <span class="mask"><span>El método, <em>paso a paso</em></span></span>
+      </h2>
+
+      <ol class="metodo__pasos">
+        {proceso.map((p) => (
+          <li class="metodo__paso rv">
+            <span class="mono-num metodo__num">{p.paso}</span>
+            <h3 class="metodo__nombre">{p.nombre}</h3>
+            <p class="metodo__texto">{p.detalle}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="seccion">
+    <div class="wrap cierre">
+      <div>
+        <span class="hud">Siguiente paso</span>
+        <h2 class="titulo-seccion cierre__titulo">
+          <span class="mask"><span>Pide tu <em>cotización</em></span></span>
+        </h2>
+        <p class="entradilla">
+          Cuéntanos el proceso que quieres resolver. Te respondemos con alcance, plazo y
+          presupuesto; si el proyecto no nos corresponde, también te lo decimos.
+        </p>
+      </div>
+      <div class="cierre__form rv">
+        <Formulario asunto="Cotización de servicios" />
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .lista { display: flex; flex-direction: column; }
+
+  .servicio {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: clamp(16px, 3vw, 48px);
+    padding-block: clamp(32px, 4vw, 60px);
+    border-top: 1px solid var(--line);
+    scroll-margin-top: 90px;
+  }
+  .servicio:last-child { border-bottom: 1px solid var(--line); }
+  @media (max-width: 760px) {
+    .servicio { grid-template-columns: 1fr; gap: 16px; }
+  }
+
+  .servicio__marco { display: flex; flex-direction: column; gap: 16px; }
+  .servicio__indice {
+    font-size: clamp(26px, 3vw, 40px);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: var(--acento);
+  }
+  .servicio__linea { flex: 1; width: 1px; background: var(--line); }
+  @media (max-width: 760px) {
+    .servicio__linea { display: none; }
+  }
+
+  .servicio__cuerpo { display: flex; flex-direction: column; gap: 14px; }
+  .servicio__titulo {
+    font-size: clamp(24px, 3vw, 40px);
+    line-height: 1.05;
+    letter-spacing: -0.035em;
+    text-transform: uppercase;
+  }
+  .servicio__resumen { max-width: 64ch; font-size: clamp(15px, 1.3vw, 18px); line-height: 1.55; }
+  .servicio__detalle { max-width: 72ch; font-size: 14px; line-height: 1.7; color: var(--mute); }
+
+  .servicio__caja {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: clamp(20px, 3vw, 44px);
+    margin-top: 14px;
+    padding: clamp(20px, 2.4vw, 30px);
+    border: 1px solid var(--line);
+    background: var(--superficie);
+  }
+  @media (max-width: 760px) {
+    .servicio__caja { grid-template-columns: 1fr; }
+  }
+
+  .servicio__entregables { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+  .servicio__entregables li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--texto);
+  }
+  .servicio__entregables svg { width: 15px; height: 15px; margin-top: 2px; flex: 0 0 auto; fill: var(--acento); }
+
+  .servicio__stack { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+  .servicio__stack li {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 10px 6px 7px;
+    border: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--mute);
+    transition: border-color 0.25s ease, color 0.25s ease;
+  }
+  .servicio__stack li:hover { border-color: var(--line-fuerte); color: var(--texto); }
+  /* cada logotipo lleva su color de marca */
+  .servicio__stack img {
+    width: 14px;
+    height: 14px;
+    flex: 0 0 auto;
+  }
+  /* solo las marcas de color muy oscuro se levantan sobre fondo negro; a las
+     claras un filtro general les quitaría su color */
+  :root[data-tema='oscuro'] .servicio__stack img[src*='pandas'],
+  :root[data-tema='oscuro'] .servicio__stack img[src*='flutter'],
+  :root[data-tema='oscuro'] .servicio__stack img[src*='wordpress'],
+  :root[data-tema='oscuro'] .servicio__stack img[src*='odoo'] {
+    filter: brightness(1.9) saturate(1.15);
+  }
+  /* sin logotipo, la etiqueta recupera su margen original */
+  .servicio__stack li:not(:has(img)) { padding-left: 10px; }
+  .servicio__acciones { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .servicio__cta { padding: 14px 20px; font-size: 10.5px; }
+
+  .metodo { background: var(--superficie); }
+  .metodo__titulo { margin-top: 18px; }
+  .metodo__pasos {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    margin-top: clamp(34px, 4vw, 56px);
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+  @media (max-width: 900px) {
+    .metodo__pasos { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 560px) {
+    .metodo__pasos { grid-template-columns: 1fr; }
+  }
+  .metodo__paso {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: clamp(22px, 2.4vw, 32px);
+    background: var(--superficie);
+  }
+  .metodo__num { font-size: 12px; color: var(--acento); letter-spacing: 0.2em; }
+  .metodo__nombre { font-size: 17px; text-transform: uppercase; letter-spacing: -0.01em; }
+  .metodo__texto { font-size: 13.5px; line-height: 1.65; color: var(--mute); }
+
+  .cierre {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(32px, 5vw, 80px);
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    .cierre { grid-template-columns: 1fr; }
+  }
+  .cierre__titulo { margin-top: 18px; }
+  .cierre__form {
+    padding: clamp(24px, 3vw, 40px);
+    border: 1px solid var(--line);
+    background: var(--superficie);
+  }
+</style>

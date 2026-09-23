@@ -1,0 +1,90 @@
+# ==========================================================
+#  EXCELSIUS — configuración de Apache para cPanel
+#  Sube el contenido de `dist/` a `public_html/`: este archivo
+#  viaja con él (está en `public/`).
+# ==========================================================
+
+# ---------- Página de error ----------
+ErrorDocument 404 /404.html
+
+# ---------- URL limpias ----------
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # forzar https y www (descomenta si el dominio ya tiene certificado)
+  # RewriteCond %{HTTPS} !=on
+  # RewriteRule ^(.*)$ https://www.excelsius.biz/$1 [R=301,L]
+  # RewriteCond %{HTTP_HOST} !^www\. [NC]
+  # RewriteRule ^(.*)$ https://www.%{HTTP_HOST}/$1 [R=301,L]
+
+  # /cursos  ->  /cursos/   (el sitio se genera con barra final)
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_URI} !(/$|\.)
+  RewriteRule ^(.*)$ /$1/ [R=301,L]
+
+  # redirecciones desde las URL antiguas de WordPress
+  RewriteRule ^nosotros/?$ /nosotros/ [R=301,L]
+  RewriteRule ^contacto/?$ /contacto/ [R=301,L]
+  RewriteRule ^cursos/seguridad-y-gestion-ambiental/?$ /cursos/#seguridad [R=301,L]
+  RewriteRule ^cursos/marketing-publicidad-y-comunicaciones/?$ /cursos/#marketing [R=301,L]
+  RewriteRule ^cursos/gestion-y-analisis-de-datos/?$ /cursos/#datos [R=301,L]
+</IfModule>
+
+# ---------- Compresión ----------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/javascript text/xml text/plain
+  AddOutputFilterByType DEFLATE application/javascript application/x-javascript
+  AddOutputFilterByType DEFLATE application/json application/xml image/svg+xml
+  AddOutputFilterByType DEFLATE font/ttf font/otf font/woff font/woff2
+</IfModule>
+
+<IfModule mod_brotli.c>
+  AddOutputFilterByType BROTLI_COMPRESS text/html text/css application/javascript image/svg+xml
+</IfModule>
+
+# ---------- Caché del navegador ----------
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresDefault                          "access plus 1 month"
+  ExpiresByType text/html                 "access plus 0 seconds"
+  ExpiresByType text/plain                "access plus 1 day"
+  ExpiresByType text/css                  "access plus 1 year"
+  ExpiresByType application/javascript    "access plus 1 year"
+  ExpiresByType image/svg+xml             "access plus 1 year"
+  ExpiresByType image/png                 "access plus 1 year"
+  ExpiresByType image/webp                "access plus 1 year"
+  ExpiresByType font/ttf                  "access plus 1 year"
+  ExpiresByType font/woff2                "access plus 1 year"
+</IfModule>
+
+# los assets de Astro llevan hash en el nombre: se pueden cachear para siempre
+<IfModule mod_headers.c>
+  <FilesMatch "\.(css|js|woff2?|ttf|otf|svg|png|jpg|jpeg|webp|avif)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "\.html$">
+    Header set Cache-Control "public, max-age=0, must-revalidate"
+  </FilesMatch>
+
+  # cabeceras de seguridad básicas
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+</IfModule>
+
+# ---------- Tipos MIME ----------
+<IfModule mod_mime.c>
+  # llms.txt y llms-full.txt llevan tildes: sin esto Apache los sirve en ISO-8859-1
+  AddCharset UTF-8                .txt .html .css .js .xml .json
+  AddType text/plain              .txt
+  AddType font/ttf                .ttf
+  AddType font/woff2              .woff2
+  AddType image/svg+xml           .svg
+  AddType application/manifest+json .webmanifest
+</IfModule>
+
+# ---------- Índices de directorio apagados ----------
+Options -Indexes
