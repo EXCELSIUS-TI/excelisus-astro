@@ -24,9 +24,10 @@ ErrorDocument 404 /404.html
   RewriteCond %{REQUEST_URI} !(/$|\.)
   RewriteRule ^(.*)$ /$1/ [R=301,L]
 
-  # redirecciones desde las URL antiguas de WordPress
-  RewriteRule ^nosotros/?$ /nosotros/ [R=301,L]
-  RewriteRule ^contacto/?$ /contacto/ [R=301,L]
+  # redirecciones desde las URL antiguas de WordPress. Ojo: una regla no puede
+  # apuntar a una URL que ella misma vuelve a capturar (`^nosotros/?$ ->
+  # /nosotros/` redirigía a /nosotros/ en bucle: ERR_TOO_MANY_REDIRECTS).
+  # /nosotros y /contacto ya los resuelve la regla de la barra final.
   RewriteRule ^cursos/seguridad-y-gestion-ambiental/?$ /cursos/#seguridad [R=301,L]
   RewriteRule ^cursos/marketing-publicidad-y-comunicaciones/?$ /cursos/#marketing [R=301,L]
   RewriteRule ^cursos/gestion-y-analisis-de-datos/?$ /cursos/#datos [R=301,L]

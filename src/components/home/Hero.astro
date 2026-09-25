@@ -1,13 +1,16 @@
 ---
-import { contacto, rutas, site } from '@/data/site';
+import { contacto, linkWhatsapp, rutas, site } from '@/data/site';
 ---
 
 <!--
   El visor de arquitectura: el grafo de servicios, los cuatro puertos de datos
   y la señal de throughput se dibujan por código sobre los dos canvas.
 -->
-<section id="hero" class="hero zona-oscura">
-  <div class="hero__fondo" aria-hidden="true"></div>
+<section id="hero" class="hero zona-oscura" data-tono="0">
+  <!-- un fondo por lámina: se funden entre sí al cambiar de portada -->
+  <div class="hero__fondo hero__fondo--0" aria-hidden="true"></div>
+  <div class="hero__fondo hero__fondo--1" aria-hidden="true"></div>
+  <div class="hero__fondo hero__fondo--2" aria-hidden="true"></div>
   <div class="hero__velo" aria-hidden="true"></div>
   <div class="hero__trama" aria-hidden="true"></div>
 
@@ -27,32 +30,115 @@ import { contacto, rutas, site } from '@/data/site';
     <b class="mono-num hero__cifra" data-lectura="throughput">148</b>
   </div>
 
-  <div class="hero__texto">
-    <span class="hud hero__claim anim-fade" style="animation-delay:.7s">{site.claim}</span>
+  <!--
+    Portada rotativa: tres láminas en la misma celda. La primera lleva las
+    animaciones de entrada y es la única visible sin JS; `hero.ts` las rota.
+  -->
+  <div class="hero__texto" data-portada>
+    <div class="hero__laminas">
+      <div class="hero__lamina" data-lamina data-tono="0" data-activa>
+        <span class="hud hero__claim anim-fade" style="animation-delay:.7s">{site.claim}</span>
 
-    <h1 class="display hero__titulo">
-      <span class="mask"><span class="anim-rise">Software</span></span>
-      <span class="mask">
-        <span class="anim-rise" style="animation-delay:.1s">
-          <span class="fill-word" data-word="a medida">a medida</span>
-        </span>
-      </span>
-      <span class="mask">
-        <span class="anim-rise" style="animation-delay:.2s">en <em>producción</em></span>
-      </span>
-    </h1>
+        <h1 class="display hero__titulo">
+          <span class="mask"><span class="anim-rise">Software</span></span>
+          <span class="mask">
+            <span class="anim-rise" style="animation-delay:.1s">
+              <span class="fill-word" data-word="a medida">a medida</span>
+            </span>
+          </span>
+          <span class="mask">
+            <span class="anim-rise" style="animation-delay:.2s">en <em>producción</em></span>
+          </span>
+        </h1>
 
-    <p class="hero__bajada anim-fade" style="animation-delay:.9s">
-      Somos la empresa de software que tu negocio necesita: sistemas, apps, ERP Odoo, Business
-      Intelligence y Machine Learning. Más los cursos en vivo para sostenerlo.
-    </p>
+        <p class="hero__bajada anim-fade" style="animation-delay:.9s">
+          Somos la empresa de software que tu negocio necesita: sistemas, apps, ERP Odoo, Business
+          Intelligence y Machine Learning. Más los cursos en vivo para sostenerlo.
+        </p>
 
-    <div class="hero__acciones anim-fade" style="animation-delay:1.1s">
-      <a href={contacto.whatsapp} target="_blank" rel="noopener noreferrer" class="cta cta--azul">
-        <i></i>Solicitar cotización
-      </a>
-      <a href={rutas.servicios} class="cta cta--linea">Ver servicios</a>
-      <a href={rutas.cursos} class="cta cta--linea">Ver cursos</a>
+        <div class="hero__acciones anim-fade" style="animation-delay:1.1s">
+          <a href={rutas.cursos} class="cta cta--azul"><i></i>Cursos y capacitación</a>
+          <a href={rutas.servicios} class="cta cta--linea">Servicios y consultoría</a>
+          <a href={contacto.whatsapp} target="_blank" rel="noopener noreferrer" class="cta cta--linea">
+            Solicitar cotización
+          </a>
+        </div>
+      </div>
+
+      <div class="hero__lamina" data-lamina data-tono="1" aria-hidden="true" inert>
+        <span class="hud hero__claim">Diagnóstico · Implementación · Acompañamiento</span>
+
+        <h2 class="display hero__titulo">
+          <span class="mask"><span>Consultoría</span></span>
+          <span class="mask">
+            <span><span class="fill-word" data-word="personalizada">personalizada</span></span>
+          </span>
+          <span class="mask"><span>para tu <em>negocio</em></span></span>
+        </h2>
+
+        <p class="hero__bajada">
+          Analizamos tus procesos y diseñamos contigo la solución: transformación digital, ERP,
+          datos y automatización, con acompañamiento de principio a fin.
+        </p>
+
+        <div class="hero__acciones">
+          <a
+            href={linkWhatsapp('Hola, quiero agendar una consultoría personalizada.')}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="cta cta--azul"
+          >
+            <i></i>Agendar consultoría
+          </a>
+          <a href={rutas.servicios} class="cta cta--linea">Ver servicios</a>
+        </div>
+      </div>
+
+      <div class="hero__lamina" data-lamina data-tono="2" aria-hidden="true" inert>
+        <span class="hud hero__claim">Cursos · Talleres · Especialidades</span>
+
+        <h2 class="display hero__titulo">
+          <span class="mask"><span>Cursos</span></span>
+          <span class="mask">
+            <span><span class="fill-word" data-word="en vivo">en vivo</span></span>
+          </span>
+          <span class="mask"><span>y <em>talleres</em></span></span>
+        </h2>
+
+        <p class="hero__bajada">
+          Especialidades en Seguridad y Gestión Ambiental, Marketing y Análisis de Datos. Clases en
+          vivo, casos reales y certificación.
+        </p>
+
+        <div class="hero__acciones">
+          <a href={rutas.cursos} class="cta cta--azul"><i></i>Ver cursos</a>
+          <a
+            href={linkWhatsapp('Hola, quiero información sobre los cursos y talleres.')}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="cta cta--linea"
+          >
+            Pedir información
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- las rayas: una por lámina, cada una con el color de su portada -->
+    <div class="hero__pasos anim-fade" style="animation-delay:1.3s" aria-label="Portadas">
+      {['Software', 'Consultoría', 'Cursos'].map((nombre, i) => (
+        <button
+          type="button"
+          class="hero__paso"
+          data-paso={i}
+          data-tono={i}
+          aria-label={`Portada ${i + 1}: ${nombre}`}
+          aria-current={i === 0 ? 'true' : undefined}
+        >
+          <span class="hero__paso-nombre"><span class="mono-num">0{i + 1}</span> {nombre}</span>
+          <i></i>
+        </button>
+      ))}
     </div>
   </div>
 
@@ -85,12 +171,34 @@ import { contacto, rutas, site } from '@/data/site';
     position: absolute;
     inset: -4%;
     z-index: 0;
+    transition: opacity 1.2s ease;
+  }
+  .hero__fondo--0 {
     background:
       radial-gradient(60% 55% at 72% 46%, rgba(4, 48, 207, 0.4), transparent 70%),
       radial-gradient(40% 40% at 20% 18%, rgba(94, 211, 255, 0.12), transparent 70%),
       radial-gradient(70% 60% at 50% 100%, rgba(2, 26, 115, 0.45), transparent 70%),
       var(--fondo);
   }
+  .hero__fondo--1 {
+    background:
+      radial-gradient(60% 55% at 72% 46%, rgba(122, 31, 162, 0.5), transparent 70%),
+      radial-gradient(40% 40% at 20% 18%, rgba(255, 141, 0, 0.16), transparent 70%),
+      radial-gradient(70% 60% at 50% 100%, rgba(74, 16, 110, 0.55), transparent 70%),
+      var(--fondo);
+  }
+  .hero__fondo--2 {
+    background:
+      radial-gradient(60% 55% at 72% 46%, rgba(4, 48, 207, 0.45), transparent 70%),
+      radial-gradient(40% 40% at 20% 18%, rgba(255, 199, 0, 0.14), transparent 70%),
+      radial-gradient(70% 60% at 50% 100%, rgba(255, 141, 0, 0.22), transparent 70%),
+      var(--fondo);
+  }
+  .hero__fondo--1,
+  .hero__fondo--2 { opacity: 0; }
+  .hero[data-tono='1'] .hero__fondo--1,
+  .hero[data-tono='2'] .hero__fondo--2 { opacity: 1; }
+
   .hero__velo {
     position: absolute;
     inset: 0;
@@ -189,6 +297,167 @@ import { contacto, rutas, site } from '@/data/site';
   }
   @media (max-width: 760px) {
     .hero__texto { bottom: 104px; }
+  }
+
+  /* ---------- tonos por lámina ----------
+     Se declaran en la sección (para lo que queda fuera de las láminas), en
+     cada lámina —que así conserva sus colores mientras sale— y en cada raya.
+     Se repite `.zona-oscura` para ganarle a sus tokens. */
+  .hero.zona-oscura[data-tono='0'],
+  .hero.zona-oscura .hero__lamina[data-tono='0'],
+  .hero.zona-oscura .hero__paso[data-tono='0'] {
+    --azul: #0430cf;
+    --azul-claro: #2f7bff;
+    --celeste: #5ed3ff;
+    --acento: #5ed3ff;
+    --acento-contraste: #05070f;
+    --cta-alt-bg: #5ed3ff;
+    --cta-alt-fg: #05070f;
+    --sobre-azul: #ffffff;
+    --line-fuerte: rgba(94, 211, 255, 0.35);
+    --trazo: rgba(94, 211, 255, 0.85);
+    --relleno: linear-gradient(115deg, #2f7bff 0%, #5ed3ff 55%, #b9ecff 100%);
+    --raya: linear-gradient(90deg, #2f7bff, #5ed3ff);
+  }
+  .hero.zona-oscura[data-tono='1'],
+  .hero.zona-oscura .hero__lamina[data-tono='1'],
+  .hero.zona-oscura .hero__paso[data-tono='1'] {
+    --azul: #7a1fa2;
+    --azul-claro: #9d4edd;
+    --celeste: #ff8d00;
+    --acento: #ff9e2c;
+    --acento-contraste: #2b1205;
+    --cta-alt-bg: #ff8d00;
+    --cta-alt-fg: #2b1205;
+    --sobre-azul: #ffffff;
+    --line-fuerte: rgba(255, 141, 0, 0.4);
+    --trazo: rgba(255, 158, 44, 0.85);
+    --relleno: linear-gradient(115deg, #b565f0 0%, #ff8d00 60%, #ffc36b 100%);
+    --raya: linear-gradient(90deg, #9d4edd, #ff8d00);
+  }
+  .hero.zona-oscura[data-tono='2'],
+  .hero.zona-oscura .hero__lamina[data-tono='2'],
+  .hero.zona-oscura .hero__paso[data-tono='2'] {
+    --azul: #0430cf;
+    --azul-claro: #2f7bff;
+    --celeste: #ffc700;
+    --acento: #ffc700;
+    --acento-contraste: #05070f;
+    --cta-alt-bg: #ff8d00;
+    --cta-alt-fg: #1a0d00;
+    --sobre-azul: #ffffff;
+    --line-fuerte: rgba(255, 199, 0, 0.4);
+    --trazo: rgba(255, 199, 0, 0.85);
+    --relleno: linear-gradient(115deg, #2f7bff 0%, #ffc700 55%, #ff8d00 100%);
+    --raya: linear-gradient(90deg, #2f7bff, #ffc700, #ff8d00);
+  }
+  .hero__lamina .fill-word { -webkit-text-stroke-color: var(--trazo); }
+  .hero__lamina .fill-word::after { background-image: var(--relleno); }
+  .hero__cifra { transition: color 1s ease; }
+
+  /* ---------- portada rotativa ---------- */
+  .hero__laminas { display: grid; align-items: center; }
+  @media (max-width: 900px) {
+    .hero__laminas { align-items: end; }
+  }
+  .hero__lamina {
+    grid-area: 1 / 1;
+    transition: opacity 0.6s ease, visibility 0.6s;
+  }
+  .hero__lamina:not([data-activa]) {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  /* la palabra en contorno se vuelve a rellenar cada vez que entra su lámina */
+  .hero__lamina:not([data-activa]) .fill-word::after { animation: none; }
+  .hero__laminas[data-rotando] .fill-word::after { animation-delay: 0.45s; }
+
+  /* Una vez que rota, las líneas del titular suben por transición (la primera
+     lámina deja sus clases `anim-*` al primer cambio). */
+  .hero__laminas[data-rotando] .hero__lamina[data-activa] .mask > span { transform: none; }
+  .hero__laminas[data-rotando] .hero__lamina[data-activa] .mask:nth-child(2) > span { transition-delay: 0.08s; }
+  .hero__laminas[data-rotando] .hero__lamina[data-activa] .mask:nth-child(3) > span { transition-delay: 0.16s; }
+  .hero__laminas[data-rotando] .hero__bajada,
+  .hero__laminas[data-rotando] .hero__acciones {
+    transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .hero__laminas[data-rotando] .hero__lamina:not([data-activa]) :is(.hero__bajada, .hero__acciones) {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  .hero__laminas[data-rotando] .hero__lamina[data-activa] .hero__bajada { transition-delay: 0.25s; }
+  .hero__laminas[data-rotando] .hero__lamina[data-activa] .hero__acciones { transition-delay: 0.35s; }
+
+  .hero__pasos {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    margin-top: 34px;
+  }
+  .hero__paso {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 6px 0;
+    border: 0;
+    background: none;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-align: left;
+    color: var(--mute);
+    cursor: pointer;
+    transition: color 0.3s;
+  }
+  .hero__paso:hover,
+  .hero__paso[aria-current] { color: var(--texto); }
+  .hero__paso .mono-num { color: var(--acento); }
+  .hero__paso-nombre { white-space: nowrap; }
+
+  /* la raya: lleva el color de la portada que abre; la activa se llena
+     mientras su lámina está en pantalla */
+  .hero__paso i {
+    position: relative;
+    display: block;
+    width: clamp(64px, 7vw, 110px);
+    height: 4px;
+    border-radius: 2px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.12);
+    transition: height 0.3s ease;
+  }
+  .hero__paso i::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--raya);
+    opacity: 0.35;
+    transition: opacity 0.3s;
+  }
+  .hero__paso:hover i::before { opacity: 0.6; }
+  .hero__paso i::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--raya);
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  .hero__paso[aria-current] i { height: 6px; }
+  .hero__paso[aria-current] i::after { transform: scaleX(1); }
+  [data-auto] .hero__paso[aria-current] i::after {
+    transform: scaleX(0);
+    animation: avance var(--duracion, 7s) linear forwards;
+  }
+  [data-pausa] .hero__paso i::after { animation-play-state: paused !important; }
+  @keyframes avance { to { transform: scaleX(1); } }
+  @media (max-width: 760px) {
+    .hero__pasos { margin-top: 24px; }
+    .hero__paso-nombre { display: none; }
+    .hero__paso { padding: 14px 0; }
+    .hero__paso i { width: 56px; }
   }
 
   .hero__claim {

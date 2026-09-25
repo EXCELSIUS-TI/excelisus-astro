@@ -473,6 +473,9 @@ input, textarea, select { font-family: inherit; font-size: inherit; color: inher
     transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .rv[data-in='true'] { opacity: 1; transform: none; }
+/* si `ui.ts` no cargó (ver la red de seguridad de Base.astro), nada se queda oculto */
+:root[data-ui='fallo'] .rv { opacity: 1; transform: none; }
+:root[data-ui='fallo'] .mask > span { transform: none; }
 
 /* titular que sube desde una máscara */
 .mask {

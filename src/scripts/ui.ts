@@ -356,16 +356,29 @@ export function iniciarMapa(): void {
 
 /** Todo lo que corre en cada página. */
 export function iniciarUI(): void {
-  iniciarTema();
-  iniciarRevelados();
-  iniciarMenu();
-  iniciarSubmenu();
-  iniciarProgreso();
-  iniciarAcordeones();
-  iniciarFiltros();
-  iniciarPestanas();
-  iniciarParalaje();
-  iniciarOrbes();
-  iniciarMapa();
-  iniciarTransicion();
+  // avisa a la red de seguridad de `Base.astro` que el módulo sí cargó
+  document.documentElement.dataset.ui = 'listo';
+
+  // cada pieza va aislada: un error en una no deja sin menú ni tema al resto
+  const piezas = [
+    iniciarTema,
+    iniciarRevelados,
+    iniciarMenu,
+    iniciarSubmenu,
+    iniciarProgreso,
+    iniciarAcordeones,
+    iniciarFiltros,
+    iniciarPestanas,
+    iniciarParalaje,
+    iniciarOrbes,
+    iniciarMapa,
+    iniciarTransicion,
+  ];
+  for (const iniciar of piezas) {
+    try {
+      iniciar();
+    } catch (error) {
+      console.error(`[ui] falló ${iniciar.name}`, error);
+    }
+  }
 }

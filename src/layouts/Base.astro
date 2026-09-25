@@ -68,6 +68,17 @@ const social = new URL(imagen.src, Astro.site ?? site.url).href;
         } catch (e) {
           /* sin almacenamiento no hay transición de entrada */
         }
+
+        /* Red de seguridad: el velo y los revelados dependen de `ui.ts`. Si ese
+           módulo no llega a correr (falla de red, dependencia desactualizada
+           del servidor de desarrollo…), la página quedaría tapada y con las
+           secciones invisibles. Pasado un rato sin señal, se descubre todo. */
+        setTimeout(function () {
+          var raiz = document.documentElement;
+          if (raiz.dataset.ui) return;
+          delete raiz.dataset.navegando;
+          raiz.dataset.ui = 'fallo';
+        }, 3500);
       })();
     </script>
     <title>{tituloCompleto}</title>

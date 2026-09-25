@@ -10,8 +10,61 @@
  * y traza viva), traducida de quirófano a plataforma tecnológica.
  */
 
-const CELESTE = '94,211,255';
-const AZUL = '47,123,255';
+/* ============================================================
+   Tonos
+   Cada lámina de la portada tiene su paleta. El canvas no puede heredar
+   variables CSS, así que los colores viven aquí como "r,g,b" y se mezclan
+   cuadro a cuadro hacia el tono objetivo.
+   ============================================================ */
+type RGB = [number, number, number];
+type Tono = { principal: RGB; secundario: RGB; tercero: RGB; interior: RGB; interior2: RGB };
+
+const TONOS: Tono[] = [
+  // 01 · software: celeste y azul de marca
+  { principal: [94, 211, 255], secundario: [47, 123, 255], tercero: [94, 211, 255], interior: [12, 26, 72], interior2: [7, 13, 34] },
+  // 02 · consultoría: naranja sobre morado
+  { principal: [255, 158, 44], secundario: [157, 78, 221], tercero: [255, 141, 0], interior: [44, 14, 70], interior2: [18, 7, 30] },
+  // 03 · cursos: dorado y naranja sobre azul
+  { principal: [255, 199, 0], secundario: [47, 123, 255], tercero: [255, 141, 0], interior: [10, 26, 84], interior2: [6, 12, 36] },
+];
+
+const mezcla = structuredClone(TONOS[0]);
+let tonoObjetivo = 0;
+let CELESTE = '';
+let AZUL = '';
+let TERCERO = '';
+let INTERIOR = '';
+let INTERIOR2 = '';
+
+const aTexto = (c: RGB) => c.map(Math.round).join(',');
+const pintarTono = () => {
+  CELESTE = aTexto(mezcla.principal);
+  AZUL = aTexto(mezcla.secundario);
+  TERCERO = aTexto(mezcla.tercero);
+  INTERIOR = aTexto(mezcla.interior);
+  INTERIOR2 = aTexto(mezcla.interior2);
+};
+pintarTono();
+
+/** Acerca los colores actuales al tono objetivo; `k` = 1 salta de golpe. */
+const mezclarTono = (k: number) => {
+  const destino = TONOS[tonoObjetivo];
+  for (const clave of Object.keys(destino) as (keyof Tono)[]) {
+    for (let c = 0; c < 3; c++) mezcla[clave][c] += (destino[clave][c] - mezcla[clave][c]) * k;
+  }
+  pintarTono();
+};
+
+/** Redibujos para el modo sin movimiento, donde no hay bucle de cuadros. */
+const redibujos: (() => void)[] = [];
+
+function cambiarTono(i: number): void {
+  tonoObjetivo = i;
+  if (menosMovimiento()) {
+    mezclarTono(1);
+    redibujos.forEach((f) => f());
+  }
+}
 
 const menosMovimiento = () =>
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -106,6 +159,7 @@ function visor(canvas: HTMLCanvasElement, area: HTMLElement): () => void {
   const frame = (ahora: number) => {
     const t = ahora - t0;
     ex += (mx - ex) * 0.06;
+    mezclarTono(0.045);
     ey += (my - ey) * 0.06;
 
     // el sistema "respira" cada ~4 s, como un monitor en marcha
@@ -124,14 +178,14 @@ function visor(canvas: HTMLCanvasElement, area: HTMLElement): () => void {
 
     // fondo del visor
     const fondo = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
-    fondo.addColorStop(0, 'rgba(12,26,72,.92)');
-    fondo.addColorStop(0.65, 'rgba(7,13,34,.95)');
+    fondo.addColorStop(0, `rgba(${INTERIOR},.92)`);
+    fondo.addColorStop(0.65, `rgba(${INTERIOR2},.95)`);
     fondo.addColorStop(1, 'rgba(5,7,15,.98)');
     ctx.fillStyle = fondo;
     ctx.fillRect(cx - R, cy - R, 2 * R, 2 * R);
 
     // retícula de coordenadas del monitor
-    ctx.strokeStyle = 'rgba(94,211,255,.07)';
+    ctx.strokeStyle = `rgba(${CELESTE},.07)`;
     ctx.lineWidth = 1;
     const paso = R / 4;
     for (let i = -4; i <= 4; i++) {
@@ -277,7 +331,7 @@ function visor(canvas: HTMLCanvasElement, area: HTMLElement): () => void {
       const py = cy + Math.sin(pa) * PR;
 
       ctx.lineWidth = 1;
-      ctx.strokeStyle = `rgba(${CELESTE},.2)`;
+      ctx.strokeStyle = `rgba(${TERCERO},.2)`;
       ctx.beginPath();
       ctx.moveTo(px, py);
       ctx.lineTo(tx, ty);
@@ -294,18 +348,18 @@ function visor(canvas: HTMLCanvasElement, area: HTMLElement): () => void {
       ctx.translate(qx, qy);
       ctx.rotate(ang);
       const estela = ctx.createLinearGradient(-26, 0, 6, 0);
-      estela.addColorStop(0, `rgba(${CELESTE},0)`);
-      estela.addColorStop(1, `rgba(${CELESTE},.95)`);
+      estela.addColorStop(0, `rgba(${TERCERO},0)`);
+      estela.addColorStop(1, `rgba(${TERCERO},.95)`);
       ctx.fillStyle = estela;
       ctx.fillRect(-26, -1, 32, 2);
-      ctx.fillStyle = `rgba(${CELESTE},1)`;
+      ctx.fillStyle = `rgba(${TERCERO},1)`;
       ctx.fillRect(2, -1.5, 5, 3);
       ctx.restore();
 
       // marcador del puerto y su etiqueta
-      ctx.fillStyle = `rgba(${CELESTE},.95)`;
+      ctx.fillStyle = `rgba(${TERCERO},.95)`;
       ctx.fillRect(px - 3, py - 3, 6, 6);
-      ctx.strokeStyle = `rgba(${CELESTE},.5)`;
+      ctx.strokeStyle = `rgba(${TERCERO},.5)`;
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.arc(px, py, 9, 0, Math.PI * 2);
@@ -347,8 +401,10 @@ function visor(canvas: HTMLCanvasElement, area: HTMLElement): () => void {
   };
   window.addEventListener('resize', onResize, { passive: true });
 
-  if (reduce) frame(t0);
-  else raf = requestAnimationFrame(frame);
+  if (reduce) {
+    frame(t0);
+    redibujos.push(() => frame(t0));
+  } else raf = requestAnimationFrame(frame);
 
   return () => {
     cancelAnimationFrame(raf);
@@ -469,6 +525,7 @@ function senal(canvas: HTMLCanvasElement, ritmo: () => number): () => void {
 
   if (reduce) {
     estatico();
+    redibujos.push(estatico);
   } else {
     anterior = performance.now();
     raf = requestAnimationFrame(frame);
@@ -515,6 +572,90 @@ function lecturas(): { detener: () => void; ritmo: () => number } {
   return { detener: () => window.clearInterval(id), ritmo: () => rpm };
 }
 
+/* ============================================================
+   Portada rotativa
+   ============================================================ */
+
+/** Tiempo que cada lámina queda en pantalla. */
+const DURACION_LAMINA = 7000;
+
+/**
+ * Rota las láminas del texto del hero. El reloj es la barra de avance del paso
+ * activo: al terminar su animación CSS se pasa a la siguiente, así que pausar
+ * la barra (hover, foco o pestaña oculta) pausa también la rotación.
+ */
+function portada(raiz: HTMLElement, alCambiar: (i: number) => void): () => void {
+  const contenedor = raiz.querySelector<HTMLElement>('.hero__laminas');
+  const laminas = [...raiz.querySelectorAll<HTMLElement>('[data-lamina]')];
+  const pasos = [...raiz.querySelectorAll<HTMLButtonElement>('[data-paso]')];
+  if (!contenedor || laminas.length < 2) return () => {};
+
+  const auto = !menosMovimiento();
+  let actual = 0;
+
+  raiz.style.setProperty('--duracion', `${DURACION_LAMINA}ms`);
+  if (auto) raiz.toggleAttribute('data-auto', true);
+
+  const mostrar = (i: number) => {
+    if (i === actual) return;
+    // la primera lámina entra con animaciones de carga: se retiran para que,
+    // de aquí en adelante, todas entren y salgan por transición
+    if (!contenedor.hasAttribute('data-rotando')) {
+      laminas[0]
+        .querySelectorAll('.anim-rise, .anim-fade')
+        .forEach((el) => el.classList.remove('anim-rise', 'anim-fade'));
+      contenedor.toggleAttribute('data-rotando', true);
+    }
+    actual = i;
+    alCambiar(i);
+    laminas.forEach((lamina, j) => {
+      const activa = j === i;
+      lamina.toggleAttribute('data-activa', activa);
+      lamina.toggleAttribute('inert', !activa);
+      if (activa) lamina.removeAttribute('aria-hidden');
+      else lamina.setAttribute('aria-hidden', 'true');
+    });
+    pasos.forEach((paso, j) => {
+      if (j === i) paso.setAttribute('aria-current', 'true');
+      else paso.removeAttribute('aria-current');
+    });
+  };
+
+  const onClick = (e: Event) => {
+    const paso = (e.target as HTMLElement).closest<HTMLElement>('[data-paso]');
+    if (paso) mostrar(Number(paso.dataset.paso));
+  };
+  const onFin = (e: AnimationEvent) => {
+    // solo cuenta la barra del paso activo, no las entradas del titular
+    if ((e.target as Element).matches('.hero__paso[aria-current] i')) {
+      mostrar((actual + 1) % laminas.length);
+    }
+  };
+  const pausar = () => raiz.toggleAttribute('data-pausa', true);
+  const seguir = () => {
+    if (!raiz.matches(':hover, :focus-within') && !document.hidden) {
+      raiz.removeAttribute('data-pausa');
+    }
+  };
+  const onVisibilidad = () => (document.hidden ? pausar() : seguir());
+
+  raiz.addEventListener('click', onClick);
+  if (auto) {
+    raiz.addEventListener('animationend', onFin);
+    raiz.addEventListener('pointerenter', pausar);
+    raiz.addEventListener('pointerleave', seguir);
+    raiz.addEventListener('focusin', pausar);
+    raiz.addEventListener('focusout', () => requestAnimationFrame(seguir));
+    document.addEventListener('visibilitychange', onVisibilidad);
+  }
+
+  return () => {
+    raiz.removeEventListener('click', onClick);
+    raiz.removeEventListener('animationend', onFin);
+    document.removeEventListener('visibilitychange', onVisibilidad);
+  };
+}
+
 /** Arranca el hero si sus elementos existen en la página. */
 export function iniciarHero(): void {
   const area = document.getElementById('hero');
@@ -525,10 +666,18 @@ export function iniciarHero(): void {
   const hud = lecturas();
   const pararVisor = visor(elVisor, area);
   const pararSenal = senal(elSenal, hud.ritmo);
+  const elPortada = area.querySelector<HTMLElement>('[data-portada]');
+  const pararPortada = elPortada
+    ? portada(elPortada, (i) => {
+        area.dataset.tono = String(i);
+        cambiarTono(i);
+      })
+    : () => {};
 
   window.addEventListener('pagehide', () => {
     pararVisor();
     pararSenal();
+    pararPortada();
     hud.detener();
   });
 }
