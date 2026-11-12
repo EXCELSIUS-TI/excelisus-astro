@@ -4,3 +4,5 @@
 allowBuilds:
   esbuild: true
   sharp: true
+  # wrangler (deploy a Cloudflare Workers) necesita el binario de workerd.
+  workerd: true
