@@ -4,7 +4,8 @@ import Orbe from '@/components/ui/Orbe.astro';
 import { cursos } from '@/data/cursos';
 
 /**
- * El envío principal va a `public/api/contacto.php`, que lo manda por correo a
+ * El envío principal va a `/api/contacto.php`: Cloudflare (`worker/index.js`) lo reenvía
+ * al hosting, donde `hosting/formularios/api/contacto.php` lo manda por correo a
  * informes@excelsius.biz desde el propio cPanel. WhatsApp queda como segunda
  * vía: arma el mismo mensaje y lo abre en wa.me.
  */

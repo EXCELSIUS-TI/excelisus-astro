@@ -1,5 +1,10 @@
 # Despliegue a cPanel — www.excelsius.biz
 
+> **OBSOLETO (nov-2026).** La web ya no se sube a cPanel: se publica en Cloudflare con cada
+> cambio en GitHub (`wrangler.jsonc`). Solo el formulario sigue en el hosting, en el
+> subdominio `formularios.excelsius.biz`: ver **`hosting/LEEME.md`**. Este documento queda
+> como referencia histórica (secciones de correo en cPanel aún válidas).
+
 > Mismo esquema que `academic-navigator-astro` (tfgtfmasesores.com): los PHP viven en
 > `public/api/` y Astro los copia solos a `dist/api/` en cada build. Solo se sube el contenido de `dist/`.
 

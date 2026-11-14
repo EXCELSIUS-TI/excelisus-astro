@@ -1,0 +1,33 @@
+# ==========================================================
+#  formularios.excelsius.biz — solo recibe el formulario de la web
+#  La web vive en Cloudflare; aquí solo hay PHP. Ver hosting/LEEME.md.
+# ==========================================================
+
+# Sin listados de carpetas
+Options -Indexes
+
+# Las respuestas del formulario nunca se guardan en caché
+<IfModule mod_headers.c>
+  <FilesMatch "\.php$">
+    Header set Cache-Control "no-store"
+  </FilesMatch>
+  Header always set X-Content-Type-Options "nosniff"
+</IfModule>
+
+# config.php solo lo incluyen los otros scripts: nadie debe abrirlo directo.
+<Files "config.php">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</Files>
+
+# Cualquier otra ruta (la portada, etc.) lleva a la web real
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{REQUEST_URI} !^/api/
+  RewriteRule ^ https://www.excelsius.biz/ [R=302,L]
+</IfModule>

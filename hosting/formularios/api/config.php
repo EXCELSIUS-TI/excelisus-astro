@@ -1,7 +1,8 @@
 <?php
-// public/api/config.php — Configuración central del envío de correos en cPanel.
-// Astro lo copia a dist/api/config.php en cada build (carpeta public/).
-// Mismo patrón que tfgtfmasesores: mail() nativo del hosting, sin contraseñas.
+// hosting/formularios/api/config.php — Configuración central del envío de correos en cPanel.
+// Vive en el subdominio formularios.excelsius.biz (ver hosting/LEEME.md), NO en la web:
+// la web está en Cloudflare, que no ejecuta PHP y reenvía /api/contacto.php hasta aquí.
+// mail() nativo del hosting, sin contraseñas.
 
 // ====== CORREO ======
 // Un solo correo para todo: los mensajes del formulario y la prueba llegan aquí,
@@ -19,9 +20,6 @@ define('SUBJECT_TAG', '[EXCELSIUS · excelsius.biz]');
 // ====== SEGURIDAD ======
 define('HONEYPOT_FIELD', 'website'); // campo trampa anti-spam (un humano no lo ve ni lo llena)
 define('ENABLE_RATE_LIMIT', true);    // 1 envío cada 30 s por IP
-// Clave para usar testmail.php: https://www.excelsius.biz/api/testmail.php?key=...
-// Cámbiala antes de subir; sin ella cualquiera podría usar el script para enviar correos.
-define('TEST_KEY', 'cambia-esta-clave');
 
 date_default_timezone_set('America/Lima');
 
@@ -64,10 +62,21 @@ function only_post(): void {
     }
 }
 
+/**
+ * IP del visitante. Los envíos llegan reenviados por Cloudflare, así que REMOTE_ADDR es
+ * la IP de Cloudflare (la misma para todos); la del visitante viene en X-Forwarded-For.
+ * Solo se usa para el límite de envíos, no para nada de seguridad.
+ */
+function client_ip(): string {
+    $fwd = trim(explode(',', (string)($_SERVER['HTTP_X_FORWARDED_FOR'] ?? ''))[0]);
+    if ($fwd !== '' && filter_var($fwd, FILTER_VALIDATE_IP)) return $fwd;
+    return (string)($_SERVER['REMOTE_ADDR'] ?? '0');
+}
+
 /** Se llama después de validar: quien corrige un dato mal escrito no queda bloqueado. */
 function rate_limit(string $form): void {
     if (!ENABLE_RATE_LIMIT) return;
-    $lock = sys_get_temp_dir() . '/excelsius_' . $form . '_' . md5($_SERVER['REMOTE_ADDR'] ?? '0') . '.lock';
+    $lock = sys_get_temp_dir() . '/excelsius_' . $form . '_' . md5(client_ip()) . '.lock';
     if (is_file($lock) && (time() - (int)filemtime($lock)) < 30) {
         json_response(429, ['ok' => false, 'error' => 'Espera unos segundos antes de enviar otro mensaje.']);
     }
@@ -144,7 +153,7 @@ function send_mail(string $to, string $subject, string $html, string $text, stri
 function log_mail_error(string $script): void {
     @file_put_contents(
         sys_get_temp_dir() . '/excelsius_mail_errors.log',
-        '[' . date('c') . "] FAIL $script to " . MAIL_TO . ' | ' . ($_SERVER['REMOTE_ADDR'] ?? '-') . "\n",
+        '[' . date('c') . "] FAIL $script to " . MAIL_TO . ' | ' . client_ip() . "\n",
         FILE_APPEND
     );
 }

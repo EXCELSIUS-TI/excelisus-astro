@@ -1,0 +1,3 @@
+# Archivos de dist/ que Cloudflare no debe publicar.
+# (.htaccess solo servía en el hosting Apache.)
+.htaccess

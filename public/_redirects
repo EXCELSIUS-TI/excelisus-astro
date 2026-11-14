@@ -1,0 +1,8 @@
+# Redirecciones de Cloudflare (equivalen a las del .htaccess del hosting).
+# URL antiguas de WordPress -> secciones nuevas.
+/cursos/seguridad-y-gestion-ambiental /cursos/#seguridad 301
+/cursos/seguridad-y-gestion-ambiental/ /cursos/#seguridad 301
+/cursos/marketing-publicidad-y-comunicaciones /cursos/#marketing 301
+/cursos/marketing-publicidad-y-comunicaciones/ /cursos/#marketing 301
+/cursos/gestion-y-analisis-de-datos /cursos/#datos 301
+/cursos/gestion-y-analisis-de-datos/ /cursos/#datos 301

@@ -1,5 +1,5 @@
 <?php
-// public/api/contacto.php — Recibe el formulario del sitio (components/ui/Formulario.astro)
+// hosting/formularios/api/contacto.php — Recibe el formulario del sitio (components/ui/Formulario.astro)
 // y lo envía a MAIL_TO (informes@excelsius.biz).
 // Campos: nombre, empresa, correo, telefono, interes, mensaje, consentimiento,
 //         origen (asunto de la página), pagina (ruta), website (honeypot).
