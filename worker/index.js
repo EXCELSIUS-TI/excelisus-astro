@@ -51,13 +51,22 @@ async function reenviar(request, url) {
       redirect: 'manual',
     });
   } catch {
-    return Response.json(
-      { ok: false, error: 'No pudimos enviar tu mensaje. Escríbenos a informes@excelsius.biz o por WhatsApp.' },
-      { status: 502, headers: { 'cache-control': 'no-store' } },
-    );
+    return sinServidor();
   }
+
+  // Hosting caído o subdominio inexistente: Cloudflare devuelve 52x/530 en texto plano.
+  // El PHP siempre responde JSON (y el desafío anti-bots es un 409), así que eso se respeta.
+  const esJson = (respuesta.headers.get('content-type') ?? '').includes('json');
+  if (respuesta.status >= 500 && !esJson) return sinServidor();
 
   const salida = new Response(respuesta.body, respuesta);
   salida.headers.set('cache-control', 'no-store');
   return salida;
+}
+
+function sinServidor() {
+  return Response.json(
+    { ok: false, error: 'No pudimos enviar tu mensaje. Escríbenos a informes@excelsius.biz o por WhatsApp.' },
+    { status: 502, headers: { 'cache-control': 'no-store' } },
+  );
 }
